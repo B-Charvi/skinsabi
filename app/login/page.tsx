@@ -1,0 +1,4 @@
+"use client";
+import { useState } from "react";
+import { supabase } from "@/lib/supabase";
+export default function Login(){const [email,setEmail]=useState(""),[password,setPassword]=useState(""),[message,setMessage]=useState("");async function submit(e:React.FormEvent){e.preventDefault();if(!supabase){setMessage("Add Supabase URL and anon key to enable sign in.");return}const {error}=await supabase.auth.signInWithPassword({email,password});setMessage(error?error.message:"You are signed in. Welcome back!")};return <section><h1>Log in</h1><form className="card stack" onSubmit={submit}><label>Email<input required type="email" value={email} onChange={e=>setEmail(e.target.value)}/></label><label>Password<input required type="password" value={password} onChange={e=>setPassword(e.target.value)}/></label><button type="submit">Log in</button>{message&&<p role="status">{message}</p>}</form><p>New to SkinSabi? <a href="/signup">Create an account</a></p></section>}

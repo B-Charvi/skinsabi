@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Icon, SegmentedChoice } from "@/components/ui";
 
 type Theme = "light" | "dark" | "auto";
@@ -11,6 +11,8 @@ type MotionSetting = "auto" | "reduced";
 
 const sizeOptions = [14, 16, 19, 22] as const;
 const sizeLabels: Record<number, string> = { 14: "A−", 16: "A", 19: "A+", 22: "A++" };
+const sizeCssValues: Record<number, string> = { 14: "90%", 16: "100%", 19: "112.5%", 22: "125%" };
+const sizeDataValues: Record<number, string> = { 14: "small", 16: "normal", 19: "large", 22: "extra-large" };
 const primaryNav = [
   ["My Products", "/products"],
   ["Routine", "/routine"],
@@ -31,16 +33,12 @@ function applyMotionPreference(motion: MotionSetting) {
   document.documentElement.dataset.motionPreference = motion;
 }
 
-function Wordmark({ size = "nav" }: { size?: "nav" | "footer" }) {
-  const titleId = useId();
-  return <span className={`wordmark wordmark--${size}`} aria-label="SkinSabi">
-    <svg className="wordmark__art" viewBox="0 0 176 52" role="img" aria-labelledby={titleId}>
-      <title id={titleId}>SkinSabi</title>
-      <text className="wordmark__letters" x="1" y="24">skinsabi</text>
-      <g className="wordmark__swash" transform="translate(0 26)" aria-hidden="true">
-        <path d="M3 15C32 5 58 22 88 11S138 6 160 13" fill="none" stroke="currentColor" strokeWidth="3.6" strokeLinecap="round"/>
-        <path d="M158 14c2-8 9-12 17-11-1 8-8 13-17 11Z" fill="var(--color-leaf)"/>
-      </g>
+export function Wordmark({ size = "nav" }: { size?: "nav" | "footer" | "panel" }) {
+  return <span className={`wordmark wordmark--${size}`} role="img" aria-label="SkinSabi">
+    <span className="wordmark__letters" aria-hidden="true">skinsabi</span>
+    <svg className="wordmark__swash" viewBox="0 0 175 26" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+      <path d="M3 15C32 5 58 22 88 11S138 6 160 13" fill="none" stroke="currentColor" strokeWidth="3.6" strokeLinecap="round"/>
+      <path d="M158 14c2-8 9-12 17-11-1 8-8 13-17 11Z" fill="var(--color-leaf)"/>
     </svg>
   </span>;
 }
@@ -72,8 +70,8 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
     setSize(nextSize);
     setReadingFont(nextFont);
     setMotion(nextMotion);
-    document.documentElement.style.fontSize = `${nextSize}px`;
-    document.documentElement.dataset.size = nextSize === 22 ? "extra-large" : nextSize === 19 ? "large" : "normal";
+    document.documentElement.style.fontSize = sizeCssValues[nextSize];
+    document.documentElement.dataset.size = sizeDataValues[nextSize];
     document.documentElement.dataset.theme = resolvedTheme(nextTheme);
     document.documentElement.style.colorScheme = resolvedTheme(nextTheme);
     document.documentElement.dataset.font = nextFont;
@@ -124,8 +122,8 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
     const nextSize = Number(value);
     setSize(nextSize);
     localStorage.setItem("ss-size", String(nextSize));
-    document.documentElement.style.fontSize = `${nextSize}px`;
-    document.documentElement.dataset.size = nextSize === 22 ? "extra-large" : nextSize === 19 ? "large" : "normal";
+    document.documentElement.style.fontSize = sizeCssValues[nextSize];
+    document.documentElement.dataset.size = sizeDataValues[nextSize];
   }
 
   function changeFont(value: ReadingFont) {
@@ -151,7 +149,7 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
           {primaryNav.map(([label, href]) => <Link key={href} href={href} aria-current={isActive(href) ? "page" : undefined}>{label}</Link>)}
         </nav>
         <div className="site-header__actions">
-          <button ref={displayButton} className="display-trigger" type="button" aria-label="Display settings" aria-haspopup="dialog" aria-expanded={displayOpen} onClick={() => setDisplayOpen(true)}><span>Aa</span><span className="display-trigger__label">Display</span></button>
+          <button ref={displayButton} className="display-trigger" type="button" aria-label="Display settings" aria-haspopup="dialog" aria-expanded={displayOpen} onClick={() => setDisplayOpen(true)}>Display</button>
           <button ref={menuButton} className="menu-trigger" type="button" aria-label="Open navigation menu" aria-haspopup="dialog" aria-expanded={menuOpen} onClick={() => setMenuOpen(true)}><Icon name="menu" size={23}/></button>
           <Link className="profile-link" href="/login">Profile</Link>
         </div>
@@ -167,7 +165,7 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
           <p>Test am, watch am, trust your skin.</p>
           <p className="site-footer__notice">General skincare education, not medical advice. Your skin knows best.</p>
         </section>
-        <nav aria-label="Explore SkinSabi" className="site-footer__links"><h2>Explore</h2><Link href="/products">My Products</Link><Link href="/routine">Routine</Link><Link href="/test-and-watch">Test &amp; Watch</Link><Link href="/learn">Learn</Link><Link href="/reviews">Reviews</Link></nav>
+        <nav aria-label="Explore SkinSabi" className="site-footer__links"><h2>Explore</h2><Link href="/">Home</Link><Link href="/products">My Products</Link><Link href="/routine">Routine</Link><Link href="/test-and-watch">Test &amp; Watch</Link><Link href="/learn">Learn</Link><Link href="/reviews">Reviews</Link></nav>
         <nav aria-label="Trust and support" className="site-footer__links"><h2>Trust &amp; support</h2><Link href="/#medical-disclaimer">Disclaimer</Link><Link href="/privacy">Privacy</Link><Link href="/find-a-dermatologist">Dermatologist directory</Link></nav>
       </div>
       <div className="page-container site-footer__bottom"><span>SkinSabi</span><span>For thoughtful, gentle skincare decisions.</span></div>
@@ -177,7 +175,7 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
       <div className="display-panel__header"><div><p className="eyebrow">Make it comfortable</p><h2 id="display-title">Display settings</h2></div><button className="icon-button" type="button" aria-label="Close display settings" onClick={() => displayDialog.current?.close()}><Icon name="close"/></button></div>
       <div className="display-panel__body">
         <SegmentedChoice label="Theme" value={theme} onChange={changeTheme} options={[{ value: "light", label: "Light" }, { value: "dark", label: "Dark" }, { value: "auto", label: "Auto" }]}/>
-        <fieldset className="segmented-choice"><legend>Text size</legend><div className="segmented-choice__options">{sizeOptions.map(value => <button key={value} type="button" className="segmented-choice__option" aria-pressed={size === value} aria-label={`${sizeLabels[value]} text size`} onClick={() => changeSize(String(value))}>{sizeLabels[value]}</button>)}</div><p className="display-panel__preview" aria-live="polite">Your skin knows best.</p></fieldset>
+        <fieldset className="segmented-choice"><legend>Text size</legend><div className="segmented-choice__options">{sizeOptions.map(value => <button key={value} type="button" className="segmented-choice__option" aria-pressed={size === value} aria-label={`${sizeLabels[value]} text size`} onClick={() => changeSize(String(value))}>{sizeLabels[value]}</button>)}</div></fieldset>
         <SegmentedChoice label="Reading font" value={readingFont} onChange={changeFont} options={[{ value: "default", label: "Default" }, { value: "easy-read", label: "Easy-read" }]}/>
         <SegmentedChoice label="Motion" value={motion} onChange={changeMotion} options={[{ value: "auto", label: "Auto" }, { value: "reduced", label: "Reduced" }]}/>
         <p className="display-panel__note">Auto follows your device settings and data-saving preferences.</p>

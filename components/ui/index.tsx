@@ -78,8 +78,8 @@ export function Stepper({ steps, className = "" }: { steps: readonly { title: st
   return <ol className={`stepper ${className}`.trim()}>{steps.map((step, index) => <li className="stepper__item" key={`${index}-${step.title}`}><span className="stepper__marker" aria-hidden="true">{index + 1}</span><div><h3>{step.title}</h3>{step.detail && <p>{step.detail}</p>}</div></li>)}</ol>;
 }
 
-export function EmptyState({ title, children, action, className = "" }: { title: string; children: ReactNode; action?: ReactNode; className?: string }) {
-  return <div className={`empty-state ${className}`.trim()}><div className="empty-state__mark" aria-hidden="true"><Icon name="leaf" size={26}/></div><h2>{title}</h2><p>{children}</p>{action}</div>;
+export function EmptyState({ title, children, action, className = "" }: { title?: string; children: ReactNode; action?: ReactNode; className?: string }) {
+  return <div className={`empty-state ${className}`.trim()}><div className="empty-state__mark" aria-hidden="true"><Icon name="search" size={30}/></div>{title && <h2>{title}</h2>}<p>{children}</p>{action}</div>;
 }
 
 export function PageHeader({ eyebrow, title, children, className = "" }: { eyebrow?: string; title: string; children?: ReactNode; className?: string }) {

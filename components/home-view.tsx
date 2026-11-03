@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { analyze, lessons } from "@/lib/catalog";
-import { PortraitIllustration, SceneIllustration, type CharacterStyle, type SkinTone } from "@/components/illustrations";
+import { analyze } from "@/lib/catalog";
+import { lessons } from "@/lib/lessons";
+import { Illustration } from "@/components/illustration";
 import { Badge, Callout, Card, Chip, Icon } from "@/components/ui";
 
 const exampleList = "Aqua, Glycerin, Niacinamide, Fragrance";
@@ -12,12 +13,13 @@ const exampleGroups = [
   { label: "Unknown", values: exampleResults.filter(item => item.flag === "Unknown Ingredient"), icon: "info" as const },
 ];
 
-const tonePeople: { tone: SkinTone; style: CharacterStyle; label: string }[] = [
-  { tone: "deep", style: "natural", label: "Deep" },
-  { tone: "medium-deep", style: "natural", label: "Medium-deep" },
-  { tone: "medium", style: "hijab", label: "Medium" },
-  { tone: "light", style: "natural", label: "Light" },
-  { tone: "fair", style: "sun-hat", label: "Fair" },
+const toneSwatches = [
+  { name: "Deep", color: "#4A2E22" },
+  { name: "Medium-deep", color: "#7B4B30" },
+  { name: "Medium", color: "#A86B43" },
+  { name: "Light", color: "#CF9A6E" },
+  { name: "Fair", color: "#E7BE97" },
+  { name: "Albinism", color: "#F6DCCB" },
 ];
 
 export function HomeView() {
@@ -31,10 +33,10 @@ export function HomeView() {
           <Link className="button button--cta" href="/routine">Build My Routine <Icon name="arrow-right"/></Link>
           <Link className="button button--secondary" href="/products">Check an ingredient</Link>
         </div>
-        <div className="tone-swatch-row" role="img" aria-label="A range of Nigerian skin tones"><span>Made for your skin</span><div>{tonePeople.map(person => <i key={person.tone} className={`tone-swatch tone-swatch--${person.tone.replace("-", "-")}`} aria-hidden="true"/>)}</div></div>
+        <div className="tone-swatch-row"><span>Made for your skin</span><div className="tone-swatch-row__swatches" role="img" aria-label="Six Nigerian skin tone swatches">{toneSwatches.map(swatch => <i key={swatch.name} className="tone-swatch" style={{ backgroundColor: swatch.color }} aria-hidden="true"/>)}</div></div>
       </div>
       <div className="home-hero__art-wrap">
-        <div className="home-hero__arch"><PortraitIllustration tone="medium-deep" className="home-hero__portrait"/></div>
+        <div className="home-hero__arch"><Illustration name="hero-products" className="home-hero__portrait"/></div>
         <span className="hero-caption"><Icon name="leaf" size={17}/> Your skin knows best.</span>
       </div>
     </section>
@@ -55,9 +57,9 @@ export function HomeView() {
     <section className="how-it-works" aria-labelledby="how-title">
       <div className="section-heading section-heading--center"><p className="eyebrow">Small steps, steady care</p><h2 id="how-title">How it works</h2><p>Take one step at a time. Your skin knows best.</p></div>
       <ol className="how-steps">
-        <li className="how-step"><span className="how-step__count">01</span><SceneIllustration scene="label" className="how-step__art"/><h3>Check the label</h3><p>Look at the ingredient list and check what is known.</p></li>
-        <li className="how-step"><span className="how-step__count">02</span><SceneIllustration scene="patch-test" className="how-step__art"/><h3>Patch test</h3><p>Introduce one new product carefully, a little at a time.</p></li>
-        <li className="how-step"><span className="how-step__count">03</span><SceneIllustration scene="watch" className="how-step__art"/><h3>Watch your skin</h3><p>Keep track of comfort and changes before adjusting your routine.</p></li>
+        <li className="how-step"><span className="how-step__count">01</span><Illustration name="check-label" className="how-step__art"/><h3>Check the label</h3><p>Look at the ingredient list and check what is known.</p></li>
+        <li className="how-step"><span className="how-step__count">02</span><Illustration name="patch-test" className="how-step__art"/><h3>Patch test</h3><p>Introduce one new product carefully, a little at a time.</p></li>
+        <li className="how-step"><span className="how-step__count">03</span><Illustration name="watch-skin" className="how-step__art"/><h3>Watch your skin</h3><p>Keep track of comfort and changes before adjusting your routine.</p></li>
       </ol>
     </section>
 
@@ -76,14 +78,14 @@ export function HomeView() {
 
     <section className="learn-highlights" aria-labelledby="learn-title">
       <div className="section-heading"><div><p className="eyebrow">Clear answers, at your pace</p><h2 id="learn-title">Learn at your pace</h2></div><Link className="text-link" href="/learn">Visit Learn <Icon name="arrow-right" size={18}/></Link></div>
-      <div className="learn-highlights__grid">{lessons.slice(0, 3).map((lesson, index) => <Card className="learn-card" key={lesson}>
-        <span className="learn-card__number">0{index + 1}</span><h3>{lesson}</h3><Link className="text-link" href="/learn">Read lesson <Icon name="arrow-right" size={18}/></Link>
+      <div className="learn-highlights__grid">{lessons.slice(0, 3).map((lesson, index) => <Card className="learn-card" key={lesson.slug}>
+        <span className="lesson-card__tile"><Icon name={lesson.icon} size={32}/></span><span className="learn-card__number">0{index + 1}</span><h3>{lesson.title}</h3><Link className="text-link" href="/learn">Read lesson <Icon name="arrow-right" size={18}/></Link>
       </Card>)}</div>
     </section>
 
     <section className="tone-band" aria-labelledby="tone-band-title">
-      <div><p className="eyebrow">Skin care should welcome everyone</p><h2 id="tone-band-title">Made for every Nigerian skin tone</h2><p>Every shade, every story. Start with care that listens to your skin.</p><div className="tone-band__swatches" role="img" aria-label="Skin tone swatches from deep to fair">{tonePeople.map(person => <span key={person.tone} className={`tone-swatch tone-swatch--${person.tone}`} aria-hidden="true"/>)}</div></div>
-      <div className="tone-band__people" aria-label="Illustrations of a range of people and skin tones">{tonePeople.map(person => <div className="tone-person" key={person.tone}><div className="tone-person__art"><PortraitIllustration tone={person.tone} style={person.style} className="tone-person__portrait"/></div><span>{person.label}</span></div>)}</div>
+      <div><p className="eyebrow">Skin care should welcome everyone</p><h2 id="tone-band-title">Made for every Nigerian skin tone</h2><p>Every shade, every story. Start with care that listens to your skin.</p></div>
+      <div className="tone-band__grid" aria-label="Display-only skin tone swatches">{toneSwatches.map(swatch => <div className="tone-sample" key={swatch.name}><span className="tone-sample__pebble" style={{ backgroundColor: swatch.color }} aria-hidden="true"/><span className="tone-sample__label">{swatch.name}</span></div>)}</div>
     </section>
 
     <section className="closing-cta" aria-labelledby="closing-title">

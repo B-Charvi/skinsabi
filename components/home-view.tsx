@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { analyze } from "@/lib/catalog";
 import { lessons } from "@/lib/lessons";
+import { AmbientSprites } from "@/components/ambient-sprites";
+import { RoutineCta } from "@/components/auth-cta";
 import { Illustration } from "@/components/illustration";
 import { Badge, Callout, Card, Chip, Icon } from "@/components/ui";
 
@@ -24,13 +26,14 @@ const toneSwatches = [
 
 export function HomeView() {
   return <>
-    <section className="home-hero">
+    <section className="home-hero ambient-host">
+      <AmbientSprites side="right"/>
       <div className="home-hero__copy">
         <p className="eyebrow">Skincare that starts with your skin</p>
         <h1>Your skin <span className="hand-underline">sabi<svg aria-hidden="true" viewBox="0 0 150 20"><path d="M4 13c28-10 40 4 69-2s46-7 73 0"/></svg></span> pass.</h1>
         <p className="home-hero__lede">Test am, watch am, trust your skin. Build a gentle routine that fits your skin, your budget, and your life in Nigeria.</p>
         <div className="home-hero__actions">
-          <Link className="button button--cta" href="/routine">Build My Routine <Icon name="arrow-right"/></Link>
+          <RoutineCta className="button button--cta">Build My Routine <Icon name="arrow-right"/></RoutineCta>
           <Link className="button button--secondary" href="/products">Check an ingredient</Link>
         </div>
         <div className="tone-swatch-row"><span>Made for your skin</span><div className="tone-swatch-row__swatches" role="img" aria-label="Six Nigerian skin tone swatches">{toneSwatches.map(swatch => <i key={swatch.name} className="tone-swatch" style={{ backgroundColor: swatch.color }} aria-hidden="true"/>)}</div></div>
@@ -50,7 +53,7 @@ export function HomeView() {
       <div className="home-tools__grid">
         <Card className="home-feature-card"><span className="home-feature-card__number">01</span><h3>Daily Skin Check</h3><p>Short check-ins are available during your first 14 days with a new product.</p><Link href="/test-and-watch" className="text-link">Start today’s check-in <Icon name="arrow-right" size={18}/></Link></Card>
         <Card className="home-feature-card"><span className="home-feature-card__number">02</span><h3>Today’s routine</h3><p>Morning: gentle cleanse, moisturize, SPF 30+. Night: gentle cleanse, one treatment at a time, moisturize.</p><Link href="/routine" className="text-link">See your routine <Icon name="arrow-right" size={18}/></Link></Card>
-        <Card className="home-feature-card"><span className="home-feature-card__number">03</span><h3>My Products</h3><p>Check saved ingredients or paste an INCI label. We never guess from a brand name.</p><Link href="/products" className="text-link">Open ingredient checker <Icon name="arrow-right" size={18}/></Link></Card>
+        <Card className="home-feature-card"><span className="home-feature-card__number">03</span><h3>Products</h3><p>Check saved ingredients or paste an INCI label. We never guess from a brand name.</p><Link href="/products" className="text-link">Open ingredient checker <Icon name="arrow-right" size={18}/></Link></Card>
       </div>
     </section>
 
@@ -89,7 +92,7 @@ export function HomeView() {
     </section>
 
     <section className="closing-cta" aria-labelledby="closing-title">
-      <div className="closing-cta__mark" aria-hidden="true"><Icon name="leaf" size={33}/></div><p className="eyebrow">Your skin knows best</p><h2 id="closing-title">Start with what your skin needs.</h2><p>Keep it gentle. Make one change at a time. Give your skin room to tell you how it feels.</p><Link className="button button--cta" href="/routine">Build My Routine <Icon name="arrow-right"/></Link>
+      <div className="closing-cta__mark" aria-hidden="true"><Icon name="leaf" size={33}/></div><p className="eyebrow">Your skin knows best</p><h2 id="closing-title">Start with what your skin needs.</h2><p>Keep it gentle. Make one change at a time. Give your skin room to tell you how it feels.</p><RoutineCta className="button button--cta">Build My Routine <Icon name="arrow-right"/></RoutineCta>
     </section>
   </>;
 }

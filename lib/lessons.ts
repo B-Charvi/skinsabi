@@ -66,7 +66,7 @@ export const lessons: Lesson[] = [
       "Creams that promise to lighten your whole skin tone. Some unregistered ones have been found to contain hydroquinone, mercury or strong steroids, which can badly damage skin.",
       "A product that burns, swells or breaks you out unusually fast. Stop using it, keep the pack and report it to NAFDAC.",
     ],
-    link: { label: "Check a label in My Products", href: "/products" },
+    link: { label: "Check a label in Products", href: "/products" },
   },
   {
     slug: "azelaic-vs-kojic",

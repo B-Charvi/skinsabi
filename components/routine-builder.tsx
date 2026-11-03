@@ -1,21 +1,28 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useAuth } from "@/components/auth-provider";
+import { RecommendedProducts } from "@/components/recommended-products";
 import { supabase } from "@/lib/supabase";
+import { matchOption } from "@/lib/safe-next";
 import { buildRoutinePlan, type Step } from "@/lib/routine-plan";
 import { Chip } from "@/components/ui";
 
 type RoutineRow = { morning?: string[]; evening?: string[]; skin_type?: string; concern?: string; budget?: string; sandwich_mode?: boolean };
+const skinOptions = ["I don't know", "Oily", "Dry", "Combination", "Sensitive"];
+const concernOptions = ["Acne", "Dark Spots", "Both", "Something else"];
+const budgetOptions = ["Under ₦15k", "₦15k–₦30k", "₦30k+"];
 const baseMorning = ["Gentle cleanser (or water only if dry)", "Moisturizer", "Sunscreen SPF 30+; reapply outdoors"];
 const baseEvening = ["Gentle cleanser", "One treatment only (optional)", "Moisturizer"];
 
-function RoutineStep({ step, showProductLink = false }: { step: Step; showProductLink?: boolean }) {
+function RoutineStep({ step, showProductLink = false, note }: { step: Step; showProductLink?: boolean; note?: string }) {
   return <li className="routine-step">
     <strong>{step.name}</strong>
     <p><strong>Look for:</strong> {step.look}</p>
     <small>{step.why}</small>
     {step.later && <p className="routine-step__later"><strong>Add later:</strong> {step.later}</p>}
-    {showProductLink && <a className="routine-step__link" href="/products">Find one in My Products</a>}
+    {showProductLink && <a className="routine-step__link" href="/products">Find one in Products</a>}
+    {note && <p className="routine-step__note"><small>{note}</small></p>}
   </li>;
 }
 
@@ -27,8 +34,22 @@ export function RoutineBuilder() {
   const [morning, setMorning] = useState(baseMorning);
   const [evening, setEvening] = useState(baseEvening);
   const [status, setStatus] = useState("Loading saved routine…");
+  const { profile } = useAuth();
+  const savedApplied = useRef(false);
+  const state = profile?.state ?? "";
   const gentle = skin === "Sensitive" || skin === "I don't know";
   const plan = buildRoutinePlan({ skin: skin as Parameters<typeof buildRoutinePlan>[0]["skin"], concern: concern as Parameters<typeof buildRoutinePlan>[0]["concern"], budget: budget as Parameters<typeof buildRoutinePlan>[0]["budget"] });
+
+  // Start from what the person told us at signup, unless they have a saved routine.
+  useEffect(() => {
+    if (!profile || savedApplied.current) return;
+    const nextSkin = matchOption(profile.skin_type, skinOptions);
+    const nextConcern = matchOption(profile.main_concern, concernOptions);
+    const nextBudget = matchOption(profile.budget, budgetOptions);
+    if (nextSkin) setSkin(nextSkin);
+    if (nextConcern) setConcern(nextConcern);
+    if (nextBudget) setBudget(nextBudget);
+  }, [profile]);
 
   useEffect(() => {
     let live = true;
@@ -40,6 +61,7 @@ export function RoutineBuilder() {
       if (!live) return;
       if (error) { setStatus(error.message); return; }
       if (data) {
+        savedApplied.current = true;
         const r = data as RoutineRow;
         setMorning(r.morning || baseMorning);
         setEvening(r.evening || baseEvening);
@@ -87,10 +109,7 @@ export function RoutineBuilder() {
         <div className="routine-plan__chips">{plan.chips.map((chip, i) => <Chip key={`${i}-${chip}`} tone="neutral">{chip}</Chip>)}</div>
       </article>
 
-      <article className="card routine-plan-card">
-        <h2>Buy in this order</h2>
-        <ol>{plan.budget.buyFirst.map(item => <li key={item}>{item}</li>)}</ol>
-      </article>
+      <RecommendedProducts skin={skin} concern={concern} budget={budget} state={state}/>
 
       <article className="card routine-plan-card">
         <h2>Morning</h2>
@@ -99,7 +118,7 @@ export function RoutineBuilder() {
 
       <article className="card routine-plan-card">
         <h2>Night</h2>
-        <ol className="routine-plan__steps">{plan.night.map((step, i) => <RoutineStep key={`${step.name}-${i}`} step={step} showProductLink={step.name === "Cleanser" || step.name === "Moisturiser"}/>)}</ol>
+        <ol className="routine-plan__steps">{plan.night.map((step, i) => <RoutineStep key={`${step.name}-${i}`} step={step} showProductLink={step.name === "Cleanser" || step.name === "Moisturiser"} note={i === 1 ? "We do not list treatment products yet. Choose one by the ingredient named above and read the label." : undefined}/>)}</ol>
       </article>
 
       <article className="card routine-plan-card">

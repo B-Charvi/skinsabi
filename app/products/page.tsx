@@ -1,2 +1,6 @@
 import { ProductChecker } from "@/components/product-checker";
-export default function Products(){return <ProductChecker/>;}
+import { RequireLogin } from "@/components/require-login";
+
+export default function Products() {
+  return <RequireLogin what="use Products"><ProductChecker/></RequireLogin>;
+}

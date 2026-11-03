@@ -1,2 +1,6 @@
 import { CheckIn } from "@/components/check-in";
-export default function TestWatch(){return <CheckIn/>;}
+import { RequireLogin } from "@/components/require-login";
+
+export default function TestWatch() {
+  return <RequireLogin what="use Test & Watch"><CheckIn/></RequireLogin>;
+}

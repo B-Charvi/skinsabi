@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { analyze, catalog } from "@/lib/catalog";
 import { supabase } from "@/lib/supabase";
-import { Badge, Button, Callout, Card, Chip, EmptyState, Icon, Input, Textarea, type IconName } from "@/components/ui";
+import { Badge, Button, Callout, Card, Chip, EmptyState, Icon, Input, Textarea } from "@/components/ui";
 
 type Product = {
   id: string;
@@ -37,19 +37,20 @@ const resultGroups = [
 ];
 
 function ProductCard({ product, addToTest }: { product: Product; addToTest: (product: Product) => void }) {
+  // Only good news is shown on a card. A product without an official list simply shows no status.
   const verified = product.verified && Boolean(product.ingredients_list);
-  const community = product.source === "User-Added";
-  const status = community ? "Community entry · not verified" : verified ? "Official ingredient list saved" : "Ingredients not verified";
-  const statusIcon: IconName = community ? "info" : verified ? "circle-check" : "info";
+  // Some starter-catalog rows use the placeholder brand "Unverified". Never show that word to a visitor.
+  const brand = product.brand === "Unverified" ? "" : product.brand;
 
   return <Card className="product-card">
     <div className="product-card__meta">
       <Chip tone="neutral">{product.category}</Chip>
       {product.treatment_level && product.treatment_level !== "None" && <Badge tone="level">{product.treatment_level}</Badge>}
     </div>
-    <h3>{product.brand} {product.product_name}</h3>
-    <p className={`product-card__status product-card__status--${community ? "community" : verified ? "verified" : "unverified"}`}><Icon name={statusIcon} size={18}/><span>{status}</span></p>
+    <h3>{`${brand} ${product.product_name}`.trim()}</h3>
+    {verified && <p className="product-card__status product-card__status--verified"><Icon name="circle-check" size={18}/><span>Official ingredient list saved</span></p>}
     {verified && product.ingredient_source_url && <a href={product.ingredient_source_url} target="_blank" rel="noreferrer">Official ingredient source</a>}
+    {!product.ingredients_list && <a className="text-link" href="#label-checker-title">Add the ingredient list</a>}
     <Button className="product-card__action" onClick={() => addToTest(product)}>Add to Test &amp; Watch</Button>
     {product.ingredients_list && <details><summary>Show saved ingredients</summary><p>{product.ingredients_list}</p></details>}
   </Card>;
@@ -70,7 +71,7 @@ export function ProductChecker() {
       const { data, error } = await supabase.from("products").select("id,brand,product_name,category,ingredients_list,verified,treatment_level,source,ingredient_source_url").order("brand").order("product_name");
       if (!live) return;
       if (error) { setStatus(`Could not load products: ${error.message}`); return; }
-      if (data) { setItems(data as Product[]); setStatus("Product catalog loaded. Unverified labels are never guessed."); }
+      if (data) { setItems(data as Product[]); setStatus("Product catalog loaded."); }
     }
     void load();
     return () => { live = false; };
@@ -97,14 +98,14 @@ export function ProductChecker() {
     const name = query.trim();
     if (!name) { setStatus("Type the product name first."); return; }
     const { error } = await supabase.from("products").insert({ brand: "Community", product_name: name, category: "Other", ingredients_list: text.trim(), source: "User-Added", verified: false, treatment_level: "None" });
-    setStatus(error ? `Could not save: ${error.message}` : "Community product saved as Not Yet Verified.");
+    setStatus(error ? `Could not save: ${error.message}` : "Saved to the catalog. We will review it. Thank you!");
   }
 
   return <div className="products-page">
     <header className="products-header">
       <p className="eyebrow">A clear look at what is on the label</p>
-      <h1>My Products</h1>
-      <p>Look up a listed product or paste the label. Ingredients stay blank until an official full ingredient list is verified.</p>
+      <h1>Products</h1>
+      <p>Look up a product or paste its label to see what to watch for.</p>
     </header>
 
     <Callout tone="info" className="catalog-note">First 3 ingredients are usually present in the largest amounts. Unknown ingredients are not automatically bad. Formula can vary by region and change over time, so compare with your package.</Callout>
@@ -116,12 +117,11 @@ export function ProductChecker() {
     <div className="category-chips" role="group" aria-label="Filter products by category">
       {categories.map(value => <button key={value} type="button" aria-pressed={category === value} onClick={() => setCategory(value)}>{value}</button>)}
     </div>
-    <p className="unverified-note">Ingredients not verified. Paste the label below for a personal check.</p>
     {status !== "Showing starter catalog; connect Supabase to load live products." || process.env.NODE_ENV !== "production" ? <p className="small" role="status">{status}</p> : null}
     {found.length ? <div className="product-grid">{found.map(product => <ProductCard key={product.id} product={product} addToTest={addToTest}/>)}</div> : <EmptyState title="No product matches that search.">Try another name, or paste the label.</EmptyState>}
 
     <section className="label-checker" aria-labelledby="label-checker-title">
-      <div className="label-checker__intro"><p className="eyebrow">Bring your own label</p><h2 id="label-checker-title">Check ingredients from your label</h2><p>Paste the ingredient list as it appears on your product package.</p></div>
+      <div className="label-checker__intro"><p className="eyebrow">Bring your own label</p><h2 id="label-checker-title">Check ingredients from your label</h2><p>Paste the ingredient list from the pack and we will flag what to watch.</p></div>
       <div className="label-checker__form">
         <Textarea label="Ingredient list" value={text} onChange={event => { setText(event.target.value); setChecked(false); }} placeholder="Paste ingredients separated by commas, semicolons, or line breaks"/>
         <div className="label-checker__actions"><Button onClick={() => setChecked(true)}>Check My Ingredients</Button><Button variant="secondary" onClick={saveCommunity}>Save as community product</Button></div>

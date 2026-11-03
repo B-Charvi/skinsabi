@@ -1,11 +1,15 @@
 import { type ButtonHTMLAttributes, type ComponentProps, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes, useId } from "react";
 
-export type IconName = "arrow-right" | "check" | "chevron-down" | "circle-check" | "close" | "info" | "leaf" | "menu" | "moon" | "octagon" | "search" | "sun" | "triangle" | "warning";
+export type IconName = "arrow-left" | "arrow-right" | "check" | "chevron-down" | "chevron-right" | "circle-check" | "close" | "info" | "leaf" | "log-out" | "menu" | "moon" | "octagon" | "search" | "sliders" | "sun" | "triangle" | "warning";
 
 export function Icon({ name, size = 20, className }: { name: IconName; size?: number; className?: string }) {
   const common = { fill: "none", stroke: "currentColor", strokeWidth: 1.8, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
   const shapes: Record<IconName, ReactNode> = {
+    "arrow-left": <><path d="M20 12H5"/><path d="m11 5-7 7 7 7"/></>,
     "arrow-right": <><path d="M4 12h15"/><path d="m13 5 7 7-7 7"/></>,
+    "chevron-right": <><path d="m9 6 6 6-6 6"/></>,
+    "log-out": <><path d="M9 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h4"/><path d="m16 8 4 4-4 4"/><path d="M20 12H9"/></>,
+    sliders: <><path d="M4 7h9M19 7h1M4 17h1M11 17h9"/><circle cx="16" cy="7" r="2.2"/><circle cx="8" cy="17" r="2.2"/></>,
     check: <><path d="m5 12 4 4L19 6"/></>,
     "chevron-down": <><path d="m6 9 6 6 6-6"/></>,
     "circle-check": <><circle cx="12" cy="12" r="9"/><path d="m8 12 2.5 2.5L16.5 9"/></>,

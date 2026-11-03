@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Atkinson_Hyperlegible, Figtree, Fraunces } from "next/font/google";
 import "./globals.css";
+import { AuthProvider } from "@/components/auth-provider";
 import { SiteShell } from "@/components/site-shell";
 
 const displayFont = Fraunces({ variable: "--font-display", subsets: ["latin"], style: ["normal", "italic"], axes: ["SOFT"], display: "swap" });
@@ -19,6 +20,6 @@ const themeInit = `(()=>{try{const r=document.documentElement;const t=localStora
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return <html lang="en-NG" suppressHydrationWarning className={`${displayFont.variable} ${uiFont.variable} ${easyReadFont.variable}`}>
     <head><script dangerouslySetInnerHTML={{ __html: themeInit }}/></head>
-    <body><SiteShell>{children}</SiteShell></body>
+    <body><AuthProvider><SiteShell>{children}</SiteShell></AuthProvider></body>
   </html>;
 }

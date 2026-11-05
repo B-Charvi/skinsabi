@@ -42,11 +42,12 @@ function whereLine(entry: PriceEntry, state: string) {
 
 function WhereToFind({ product, state }: { product: Product; state: string }) {
   return <ul className="reco-where" aria-label={`Where to find ${product.brand} ${product.name}`}>
-    {sortedSellers(product, state).map(entry => {
+    {sortedSellers(product, state).map((entry, index) => {
       const line = whereLine(entry, state);
       const name = entry.channel;
       const rest = line.slice(name.length);
-      return <li key={`${entry.channel}-${entry.url}`}>
+      // Some products have two listings on the same marketplace with the same search link, so the position is part of the key.
+      return <li key={`${entry.channel}-${entry.priceNGN}-${index}`}>
         <a href={entry.url} target="_blank" rel="noopener noreferrer">{name}</a>{rest} <span className="reco-where__price">{naira(entry.priceNGN)}, {entry.label}, checked {shortDate(entry.checkedOn)}</span>
       </li>;
     })}

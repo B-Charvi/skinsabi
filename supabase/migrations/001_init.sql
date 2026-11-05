@@ -1,4 +1,4 @@
-# SkinSabi Supabase initial schema
+-- SkinSabi Supabase initial schema
 create extension if not exists pgcrypto;
 create type public.product_category as enum ('Cleanser','Soap','Face Wash','Moisturizer','Sunscreen','Treatment','Toner','Scrub','Oil','Other');
 create type public.flag_type as enum ('Red Flag','Yellow Flag','Green Flag','Neutral');

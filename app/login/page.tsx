@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 import { AmbientSprites } from "@/components/ambient-sprites";
 import { useAuth } from "@/components/auth-provider";
+import { GoogleButton } from "@/components/google-button";
 import { Wordmark } from "@/components/site-shell";
 import { Button, Input } from "@/components/ui";
 import { nextFromLocation } from "@/lib/safe-next";
@@ -49,6 +50,9 @@ export default function Login() {
         <h1 id="login-title">Log in</h1>
         <p className="auth-card__lede">Welcome back. Pick up where you left off.</p>
       </div>
+      <GoogleButton/>
+      <p className="small auth-note">New here? Continuing with Google creates your account. SkinSabi gives general information, not medical advice.</p>
+      <div className="auth-divider" role="separator"><span>or log in with email</span></div>
       <form className="stack" onSubmit={submit}>
         <Input label="Email" required type="email" autoComplete="email" value={email} onChange={event => setEmail(event.target.value)}/>
         <Input label="Password" required type="password" autoComplete="current-password" value={password} onChange={event => setPassword(event.target.value)}/>

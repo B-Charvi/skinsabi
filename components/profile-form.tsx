@@ -1,10 +1,12 @@
 "use client";
 
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useAuth } from "@/components/auth-provider";
 import { Button, Callout, Input, Select } from "@/components/ui";
 import { NIGERIAN_STATES } from "@/lib/nigeria-states";
-import { matchOption } from "@/lib/safe-next";
+import { matchOption, nextFromLocation } from "@/lib/safe-next";
 import { supabase } from "@/lib/supabase";
 
 const skinOptions = ["Oily", "Dry", "Combination", "Sensitive", "I Don't Know"];
@@ -15,8 +17,12 @@ const reserved = ["admin", "administrator", "skinsabi", "support", "help", "root
 type Note = { tone: "success" | "danger"; text: string } | null;
 
 export function ProfileForm() {
+  const router = useRouter();
   const { user, profile, refreshProfile } = useAuth();
   const touched = useRef(false);
+  // ?welcome=1 is set right after someone's first Google sign in. It adds a short welcome and moves them on after saving.
+  const [welcome, setWelcome] = useState(false);
+  const [after, setAfter] = useState("");
   const [username, setUsername] = useState("");
   const [fullName, setFullName] = useState("");
   const [skin, setSkin] = useState("");
@@ -26,6 +32,11 @@ export function ProfileForm() {
   const [city, setCity] = useState("");
   const [note, setNote] = useState<Note>(null);
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    try { setWelcome(new URLSearchParams(window.location.search).get("welcome") === "1"); } catch { /* ignore */ }
+    setAfter(nextFromLocation(""));
+  }, []);
 
   // Fill the form from the saved profile (or the signup details) until the person starts typing.
   useEffect(() => {
@@ -74,14 +85,15 @@ export function ProfileForm() {
     }
     setUsername(handle);
     await refreshProfile();
+    if (welcome) { router.replace(after || "/routine"); return; }
     setNote({ tone: "success", text: "Saved." });
   }
 
   return <form className="profile-form stack" onSubmit={save}>
     <header className="page-header">
-      <p className="eyebrow">Your account</p>
-      <h1>Your profile</h1>
-      <p className="page-header__description">Change how you appear and what your routine is based on.</p>
+      <p className="eyebrow">{welcome ? "Welcome to SkinSabi" : "Your account"}</p>
+      <h1>{welcome ? "Tell us about your skin" : "Your profile"}</h1>
+      <p className="page-header__description">{welcome ? "Pick what fits you best so your routine and product matches make sense. You can change any of this later." : "Change how you appear and what your routine is based on."}</p>
     </header>
 
     <section className="card stack" aria-labelledby="profile-account">
@@ -121,7 +133,8 @@ export function ProfileForm() {
     </section>
 
     <div className="profile-form__actions">
-      <Button type="submit" size="large" disabled={saving}>{saving ? "Saving…" : "Save changes"}</Button>
+      <Button type="submit" size="large" disabled={saving}>{saving ? "Saving…" : welcome ? "Save and build my routine" : "Save changes"}</Button>
+      {welcome && <p className="auth-switch"><Link href={after || "/"}>Skip for now</Link></p>}
       <div role="status" aria-live="polite">{note && <Callout tone={note.tone}>{note.text}</Callout>}</div>
     </div>
   </form>;

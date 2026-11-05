@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 import { AmbientSprites } from "@/components/ambient-sprites";
 import { useAuth } from "@/components/auth-provider";
+import { GoogleButton } from "@/components/google-button";
 import { Illustration } from "@/components/illustration";
 import { Wordmark } from "@/components/site-shell";
 import { Icon, Input, Select } from "@/components/ui";
@@ -74,6 +75,9 @@ export default function Signup() {
       <h1>Create your account</h1>
       <p>Free. Takes less than one minute.</p>
       <form className="card stack" onSubmit={submit}>
+        <GoogleButton label="Sign up with Google"/>
+        <p className="small auth-note">With Google you skip the form below and choose your skin details right after. SkinSabi gives general information, not medical advice.</p>
+        <div className="auth-divider" role="separator"><span>or sign up with email</span></div>
         <Input label="Full name" required value={name} onChange={event => setName(event.target.value)} placeholder="Adaeze O." autoComplete="name"/>
         <Input label="Email" required type="email" value={email} onChange={event => setEmail(event.target.value)} placeholder="you@example.com" autoComplete="email"/>
         <Input label="Password (8+ characters)" required minLength={8} type="password" value={password} onChange={event => setPassword(event.target.value)} autoComplete="new-password"/>

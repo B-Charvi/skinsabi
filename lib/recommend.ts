@@ -1,15 +1,33 @@
 import { products, type Category, type ConcernName, type Product, type SkinType } from "./recommended-products";
 
-export const ORDER: Category[] = ["sunscreen", "cleanser", "moisturiser"]; // buy in this order
-
 export const low = (p: Product) => Math.min(...p.prices.map(x => x.priceNGN));
 export const high = (p: Product) => Math.max(...p.prices.map(x => x.priceNGN));
+
+/**
+ * The price used for budget maths: the HIGHEST price we found for the product.
+ * Prices differ a lot between sellers (one sunscreen was 10,000 on one site and 25,000 on another), and some are old.
+ * Planning with the highest means a product in "Start with" can still be bought inside the budget if the person
+ * lands on the dearer seller, so nobody walks into a shop expecting 15,000 and meets a bigger bill.
+ */
+export const planPrice = high;
 
 /** Spend limit for the budget option on the page. Match by text so the exact option strings stay untouched. */
 export function budgetCap(budget: string): number {
   if (budget.startsWith("Under")) return 15000;
   if (budget.includes("30k+")) return Infinity;
   return 30000;
+}
+
+/**
+ * The order we try to fit the categories into the budget.
+ * Dark spots: sunscreen first, because sun makes marks darker and slower to fade.
+ * Acne or anything else: a gentle wash and a light moisturiser first, then sunscreen. Sunscreen is still advised for
+ * everyone, but it is the dearest product on the list and should not swallow a small budget.
+ */
+export function orderFor(concern: ConcernName): Category[] {
+  return concern === "Dark Spots" || concern === "Both"
+    ? ["sunscreen", "cleanser", "moisturiser"]
+    : ["cleanser", "moisturiser", "sunscreen"];
 }
 
 export function eligible(p: Product, skin: SkinType, concern: ConcernName): boolean {
@@ -24,50 +42,48 @@ export type Deferred = { category: Category; cheapest: Product; best: Product };
 export type Recommendation = {
   cap: number;
   startWith: Pick[];
-  startTotal: number;
+  startTotalHigh: number;       // what the picks cost at the highest prices we found. Never above the cap.
+  startTotalLow: number;        // what they cost if you find the cheapest seller for each
   addWhenYouCan: Deferred[];
-  cheapestFullSet: number;      // sum of the cheapest eligible product in every category
-  shortfall: number;            // how far the cheapest full set is above the cap (0 if it fits)
   missing: Category[];          // categories with no eligible product on the list
-  sunscreenAboveBudget: boolean;
+  sunscreenDeferred: boolean;   // sunscreen is not in "Start with" (it did not fit, or there is none yet)
 };
 
 export function recommend(input: { skin: SkinType; concern: ConcernName; budget: string }): Recommendation {
   const { skin, concern } = input;
   const cap = budgetCap(input.budget);
-  const lists = ORDER.map(category => ({
+  const lists = orderFor(concern).map(category => ({
     category,
     list: products.filter(p => p.category === category && eligible(p, skin, concern))
-      .sort((a, b) => rankFor(a, skin) - rankFor(b, skin) || low(a) - low(b))
+      .sort((a, b) => rankFor(a, skin) - rankFor(b, skin) || planPrice(a) - planPrice(b))
   }));
-  const cheapestOf = (list: Product[]) => list.reduce((m, p) => (low(p) < low(m) ? p : m));
+  const cheapestOf = (list: Product[]) => list.reduce((m, p) => (planPrice(p) < planPrice(m) ? p : m));
   const missing = lists.filter(x => x.list.length === 0).map(x => x.category);
   const present = lists.filter(x => x.list.length > 0);
-  const cheapestFullSet = present.reduce((s, x) => s + low(cheapestOf(x.list)), 0);
 
-  // 1. Include categories in buying order while the cheapest options still fit. Stop at the first that does not.
+  // 1. Go through the categories in order. Keep each one whose cheapest option still fits; set the rest aside for later.
   const included: typeof present = [];
   const deferredLists: typeof present = [];
-  let used = 0, stopped = false;
+  let used = 0;
   for (const x of present) {
-    const c = low(cheapestOf(x.list));
-    if (!stopped && used + c <= cap) { included.push(x); used += c; } else { stopped = true; deferredLists.push(x); }
+    const c = planPrice(cheapestOf(x.list));
+    if (used + c <= cap) { included.push(x); used += c; } else deferredLists.push(x);
   }
 
-  // 2. Start from the cheapest pick in each included category, then upgrade to the best-ranked one the leftover allows.
+  // 2. Start from the cheapest pick in each kept category, then upgrade to the best-ranked one the leftover allows.
   let leftover = cap === Infinity ? Infinity : cap - used;
   const startWith: Pick[] = included.map(x => {
     let chosen = cheapestOf(x.list);
     for (const cand of x.list) {
-      const extra = low(cand) - low(chosen);
+      const extra = planPrice(cand) - planPrice(chosen);
       if (extra <= leftover) { leftover -= Math.max(extra, 0); chosen = cand; break; }
     }
     return { category: x.category, chosen, alternatives: x.list.filter(p => p.id !== chosen.id).slice(0, 2) };
   });
-  const startTotal = startWith.reduce((s, p) => s + low(p.chosen), 0);
+  const startTotalHigh = startWith.reduce((s, p) => s + planPrice(p.chosen), 0);
+  const startTotalLow = startWith.reduce((s, p) => s + low(p.chosen), 0);
 
   const addWhenYouCan: Deferred[] = deferredLists.map(x => ({ category: x.category, cheapest: cheapestOf(x.list), best: x.list[0] }));
-  const sunscreenList = lists[0].list;
-  const sunscreenAboveBudget = sunscreenList.length > 0 && low(cheapestOf(sunscreenList)) > cap;
-  return { cap, startWith, startTotal, addWhenYouCan, cheapestFullSet, shortfall: Math.max(0, cheapestFullSet - cap), missing, sunscreenAboveBudget };
+  const sunscreenDeferred = !startWith.some(p => p.category === "sunscreen");
+  return { cap, startWith, startTotalHigh, startTotalLow, addWhenYouCan, missing, sunscreenDeferred };
 }

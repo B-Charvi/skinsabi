@@ -81,7 +81,9 @@ function PickRow({ category, product, alternatives, state }: { category: Categor
 
 export function RecommendedProducts({ skin, concern, budget, state }: { skin: string; concern: string; budget: string; state: string }) {
   const result: Recommendation = useMemo(() => recommend({ skin: skin as SkinType, concern: concern as ConcernName, budget }), [skin, concern, budget]);
-  const { cap, startWith, startTotal, addWhenYouCan, cheapestFullSet, shortfall, missing, sunscreenAboveBudget } = result;
+  const { cap, startWith, startTotalHigh, startTotalLow, addWhenYouCan, missing, sunscreenDeferred } = result;
+  const sunscreenLater = addWhenYouCan.find(item => item.category === "sunscreen");
+  const darkSpots = concern === "Dark Spots" || concern === "Both";
 
   return <article className="card routine-plan-card routine-plan-card--wide reco-card" aria-labelledby="reco-title">
     <h2 id="reco-title">Products that fit your plan</h2>
@@ -94,18 +96,22 @@ export function RecommendedProducts({ skin, concern, budget, state }: { skin: st
       <h3>Start with</h3>
       <ol className="reco-list">{startWith.map(pick => <PickRow key={pick.category} category={pick.category} product={pick.chosen} alternatives={pick.alternatives} state={state}/>)}</ol>
       <p className="reco-total">
-        <strong>Total at the lowest prices we found: {naira(startTotal)}</strong>
+        <strong>Most you should pay, at the highest prices we found: {naira(startTotalHigh)}</strong>
         {cap !== Infinity && <> · Your budget: up to {naira(cap)}</>}
-        <br/><small>You do not have to spend all of it.</small>
+        <br/><small>{startTotalLow < startTotalHigh ? `If you find the cheapest seller for each product, about ${naira(startTotalLow)}. ` : ""}You do not have to spend all of it.</small>
       </p>
     </>}
 
     {addWhenYouCan.length > 0 && <>
       <h3>Add when you can</h3>
-      <ul className="reco-later">{addWhenYouCan.map(item => <li key={item.category}><strong>{categoryLabel[item.category]}</strong> from {naira(low(item.cheapest))}</li>)}</ul>
-      {startWith.length > 0 && shortfall > 0 && <Callout tone="info">The cheapest full set we found costs {naira(cheapestFullSet)}. You are about {naira(shortfall)} short. Start with the products above and add the {categoryLabel[addWhenYouCan[0].category].toLowerCase()} when you can.</Callout>}
-      {startWith.length === 0 && sunscreenAboveBudget && <Callout tone="warning">The cheapest sunscreen we found is {naira(low(addWhenYouCan[0].cheapest))}, which is above this budget. Save for it first. Until then use shade and a wide-brimmed hat, and do not use bleaching creams or home mixes to fill the gap.</Callout>}
+      <ul className="reco-later">{addWhenYouCan.map(item => <li key={item.category}><strong>{categoryLabel[item.category]}</strong> from {naira(low(item.cheapest))}{high(item.cheapest) > low(item.cheapest) && <> (up to {naira(high(item.cheapest))} at some sellers)</>}</li>)}</ul>
     </>}
+
+    {sunscreenDeferred && sunscreenLater && <Callout tone={darkSpots ? "warning" : "info"} title="Sunscreen is your next step">
+      {darkSpots
+        ? <>Sun makes dark marks darker and slower to fade, so sunscreen is the most useful product to add next. The one we found costs {priceText(sunscreenLater.cheapest)}, and we could not fit it into your budget with the other products. Until you can buy it, stay in the shade and wear a cap or use an umbrella. Do not use bleaching creams or home mixes to fill the gap.</>
+        : <>Sunscreen matters for everyone, and acne marks darken in the sun. It is also the dearest product on our list ({priceText(sunscreenLater.cheapest)}), so we put the basics first so your budget holds at the shop. Save for it next. Until then, stay in the shade and wear a cap or use an umbrella.</>}
+    </Callout>}
 
     {missing.length > 0 && <ul className="reco-missing">{missing.map(category => <li key={category}>We do not have a checked {categoryLabel[category].toLowerCase()} for this skin type yet.</li>)}</ul>}
 

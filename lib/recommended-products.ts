@@ -87,10 +87,10 @@ export const products: Product[] = [
   {
     id: "dove-beauty-bar",
     category: "cleanser", brand: "Dove", name: "Beauty Bar (cream bar)", size: "1 bar",
-    skins: ["Oily", "Dry", "Combination"], avoidConcerns: [], fragrance: "contains",
+    skins: ["Oily", "Dry", "Combination"], avoidConcerns: ["Acne", "Both"], fragrance: "contains",
     rank: { "Oily": 3, "Combination": 3, "Dry": 3 },
     why: "A low-cost mild beauty bar. A budget swap for a facial wash when a wash is out of reach.",
-    cautions: ["Fragranced. Not for sensitive skin.", "The prices we found were old (2023) and varied by pack size. Check the current price."],
+    cautions: ["Fragranced. Not for sensitive skin.", "Bar soap can be harsher than a gentle wash, so we do not suggest it when acne is your concern.", "The prices we found were old (2023) and varied by pack size. Check the current price."],
     prices: [
       { channel: "Jumia", kind: "marketplace", priceNGN: 1500, label: "old price", checkedOn: "2026-10-30", url: J("dove beauty cream bar soap") },
       { channel: "Jumia", kind: "marketplace", priceNGN: 5000, label: "old price", checkedOn: "2026-10-30", url: J("dove beauty cream bar soap") }

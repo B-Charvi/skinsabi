@@ -1,7 +1,10 @@
 import { products, type Category, type ConcernName, type Product, type SkinType } from "./recommended-products";
 
-export const low = (p: Product) => Math.min(...p.prices.map(x => x.priceNGN));
-export const high = (p: Product) => Math.max(...p.prices.map(x => x.priceNGN));
+/** Prices from sellers that had the product in stock when we checked. */
+export const inStock = (p: Product) => p.prices.filter(x => !x.soldOut);
+export const buyable = (p: Product) => inStock(p).length > 0;
+export const low = (p: Product) => Math.min(...inStock(p).map(x => x.priceNGN));
+export const high = (p: Product) => Math.max(...inStock(p).map(x => x.priceNGN));
 
 /**
  * The price used for budget maths: the HIGHEST price we found for the product.
@@ -20,19 +23,20 @@ export function budgetCap(budget: string): number {
 
 /**
  * The order we try to fit the categories into the budget.
- * Dark spots: sunscreen first, because sun makes marks darker and slower to fade.
+ * Dark spots only: sunscreen first, because sun makes marks darker and slower to fade.
+ * Acne and dark spots together: a wash first for the acne, then sunscreen to protect the marks, then moisturiser.
  * Acne or anything else: a gentle wash and a light moisturiser first, then sunscreen. Sunscreen is still advised for
  * everyone, but it is the dearest product on the list and should not swallow a small budget.
  */
 export function orderFor(concern: ConcernName): Category[] {
-  return concern === "Dark Spots" || concern === "Both"
-    ? ["sunscreen", "cleanser", "moisturiser"]
-    : ["cleanser", "moisturiser", "sunscreen"];
+  if (concern === "Dark Spots") return ["sunscreen", "cleanser", "moisturiser"];
+  if (concern === "Both") return ["cleanser", "sunscreen", "moisturiser"];
+  return ["cleanser", "moisturiser", "sunscreen"];
 }
 
 export function eligible(p: Product, skin: SkinType, concern: ConcernName): boolean {
   const gentle = skin === "Sensitive" || skin === "I don't know";
-  return p.skins.includes(skin) && !p.avoidConcerns.includes(concern) && !(gentle && p.fragrance === "contains");
+  return buyable(p) && p.skins.includes(skin) && !p.avoidConcerns.includes(concern) && !(gentle && p.fragrance === "contains");
 }
 
 const rankFor = (p: Product, skin: SkinType) => p.rank[skin] ?? 9;

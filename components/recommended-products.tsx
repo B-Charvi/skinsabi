@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo } from "react";
 import { Callout, Chip } from "@/components/ui";
-import { high, low, recommend, type Recommendation } from "@/lib/recommend";
+import { high, inStock, low, recommend, type Recommendation } from "@/lib/recommend";
 import { PRICES_COLLECTED, type Category, type ConcernName, type PriceEntry, type Product, type SkinType } from "@/lib/recommended-products";
 
 const categoryLabel: Record<Category, string> = { sunscreen: "Sunscreen", cleanser: "Cleanser", moisturiser: "Moisturiser" };
@@ -22,12 +22,12 @@ function priceText(product: Product) {
 }
 
 function lowestEntry(product: Product): PriceEntry {
-  return product.prices.reduce((best, entry) => (entry.priceNGN < best.priceNGN ? entry : best));
+  return inStock(product).reduce((best, entry) => (entry.priceNGN < best.priceNGN ? entry : best));
 }
 
 /** Sellers in the person's state first, then marketplaces, then online pharmacies, then other stores. */
 function sortedSellers(product: Product, state: string) {
-  const rank = (entry: PriceEntry) => entry.region && entry.region === state ? 1 : entry.kind === "marketplace" ? 2 : entry.kind === "online-pharmacy" ? 3 : 4;
+  const rank = (entry: PriceEntry) => (entry.soldOut ? 9 : 0) + (entry.region && entry.region === state ? 1 : entry.kind === "marketplace" ? 2 : entry.kind === "online-pharmacy" ? 3 : 4);
   return [...product.prices].sort((a, b) => rank(a) - rank(b));
 }
 
@@ -48,7 +48,7 @@ function WhereToFind({ product, state }: { product: Product; state: string }) {
       const rest = line.slice(name.length);
       // Some products have two listings on the same marketplace with the same search link, so the position is part of the key.
       return <li key={`${entry.channel}-${entry.priceNGN}-${index}`}>
-        <a href={entry.url} target="_blank" rel="noopener noreferrer">{name}</a>{rest} <span className="reco-where__price">{naira(entry.priceNGN)}, {entry.label}, checked {shortDate(entry.checkedOn)}</span>
+        <a href={entry.url} target="_blank" rel="noopener noreferrer">{name}</a>{rest} <span className="reco-where__price">{entry.soldOut ? `Sold out when checked on ${shortDate(entry.checkedOn)}` : `${naira(entry.priceNGN)}, ${entry.label}, checked ${shortDate(entry.checkedOn)}`}</span>
       </li>;
     })}
   </ul>;
@@ -109,8 +109,8 @@ export function RecommendedProducts({ skin, concern, budget, state }: { skin: st
 
     {sunscreenDeferred && sunscreenLater && <Callout tone={darkSpots ? "warning" : "info"} title="Sunscreen is your next step">
       {darkSpots
-        ? <>Sun makes dark marks darker and slower to fade, so sunscreen is the most useful product to add next. The one we found costs {priceText(sunscreenLater.cheapest)}, and we could not fit it into your budget with the other products. Until you can buy it, stay in the shade and wear a cap or use an umbrella. Do not use bleaching creams or home mixes to fill the gap.</>
-        : <>Sunscreen matters for everyone, and acne marks darken in the sun. It is also the dearest product on our list ({priceText(sunscreenLater.cheapest)}), so we put the basics first so your budget holds at the shop. Save for it next. Until then, stay in the shade and wear a cap or use an umbrella.</>}
+        ? <>Sun makes dark marks darker and slower to fade, so sunscreen is the most useful product to add next. The cheapest one we found for your skin costs {priceText(sunscreenLater.cheapest)}, and we could not fit it into your budget with the other products. Until you can buy it, stay in the shade and wear a cap or use an umbrella. Do not use bleaching creams or home mixes to fill the gap.</>
+        : <>Sunscreen matters for everyone, and acne marks darken in the sun. It is also usually the dearest step. The cheapest one we found for your skin costs {priceText(sunscreenLater.cheapest)}, so we put the basics first to keep your budget safe at the shop. Save for it next. Until then, stay in the shade and wear a cap or use an umbrella.</>}
     </Callout>}
 
     {missing.length > 0 && <ul className="reco-missing">{missing.map(category => <li key={category}>We do not have a checked {categoryLabel[category].toLowerCase()} for this skin type yet.</li>)}</ul>}

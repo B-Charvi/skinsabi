@@ -1,4 +1,6 @@
-export type Category = "sunscreen" | "cleanser" | "moisturiser";
+export type Category = "sunscreen" | "cleanser" | "moisturiser" | "treatment";
+/** The active ingredient of a treatment product. Each one has its own how-to-start and warning lines in treatment-safety.ts. */
+export type ActiveKind = "niacinamide" | "azelaic acid" | "benzoyl peroxide";
 export type SkinType = "I don't know" | "Oily" | "Dry" | "Combination" | "Sensitive";
 export type ConcernName = "Acne" | "Dark Spots" | "Both" | "Something else";
 export type Fragrance = "free_claim" | "none_listed" | "contains";
@@ -24,6 +26,9 @@ export type Product = {
   avoidConcerns: ConcernName[];            // never offered when the user's concern is one of these
   fragrance: Fragrance;                    // "contains" products are never offered to Sensitive or "I don't know"
   rank: Partial<Record<SkinType, number>>; // 1 = best fit for that skin type
+  concernRank?: Partial<Record<ConcernName, number>>; // treatments only: 1 = best fit for that concern. Counts before the skin rank.
+  active?: ActiveKind;                     // treatments only
+  strength?: string;                       // treatments only, as the seller states it, e.g. "5% niacinamide"
   why: string;
   cautions: string[];
   prices: PriceEntry[];
@@ -217,5 +222,77 @@ export const products: Product[] = [
     why: "A light, oil-free gel-cream for dehydrated skin. The seller says it absorbs without clogging pores.",
     cautions: ["We could not confirm whether it is fragrance-free. Check the pack's ingredient list.", "Dearer than most moisturisers on our list."],
     prices: [{ channel: "GoMed", kind: "online-pharmacy", priceNGN: 20900, label: "last known price", checkedOn: "2026-11-10", url: "https://gomed.ng/product/neutrogena-hydro-boost-water-cream-50ml" }]
+  },
+  {
+    id: "advanced-clinicals-5-niacinamide-serum-52",
+    category: "treatment", brand: "Advanced Clinicals", name: "5% Niacinamide Serum", size: "52 ml",
+    active: "niacinamide", strength: "5% niacinamide",
+    skins: ["Oily", "Dry", "Combination", "Sensitive", "I don't know"], avoidConcerns: ["Something else"], fragrance: "none_listed",
+    rank: { "Sensitive": 1, "I don't know": 1, "Dry": 1, "Oily": 2, "Combination": 2 },
+    concernRank: { "Dark Spots": 1, "Both": 2, "Acne": 3 },
+    why: "Niacinamide is a form of vitamin B3. Studies suggest it can slowly fade dark marks and calm oil when it is used every day with sunscreen. 5% is the gentler end of what is sold, so it is the one we offer first to sensitive skin.",
+    cautions: ["Some people flush or itch with niacinamide. Patch test first, and stop if it happens.", "The 5% claim comes from the seller. It is not lab-verified."],
+    prices: [
+      { channel: "Nectar Beauty Hub", kind: "store", priceNGN: 11910, label: "listed price", checkedOn: "2026-11-10", url: "https://nectarbeautyhub.com/products/advanced-clinicals-5-niacnimide-serum-1-75oz", region: "Lagos" },
+      { channel: "GoMed", kind: "online-pharmacy", priceNGN: 13000, label: "last known price", checkedOn: "2026-11-10", url: "https://gomed.ng/product/advanced-clincal-5-niacinamide-serum-52ml" }
+    ]
+  },
+  {
+    id: "good-molecules-niacinamide-serum-30",
+    category: "treatment", brand: "Good Molecules", name: "Niacinamide Serum", size: "30 ml",
+    active: "niacinamide", strength: "10% niacinamide",
+    skins: ["Oily", "Dry", "Combination"], avoidConcerns: ["Something else"], fragrance: "none_listed",
+    rank: { "Oily": 1, "Combination": 1, "Dry": 2 },
+    concernRank: { "Dark Spots": 2, "Both": 3, "Acne": 4 },
+    why: "A 10% niacinamide serum. A stronger step than 5% for oily or combination skin that has already tolerated niacinamide.",
+    cautions: ["10% is stronger. If your skin is sensitive, choose the 5% serum instead.", "Some people flush or itch with niacinamide. Patch test first, and stop if it happens."],
+    prices: [{ channel: "Nectar Beauty Hub", kind: "store", priceNGN: 11400, label: "listed price", checkedOn: "2026-11-10", url: "https://nectarbeautyhub.com/products/niacinamide-serum", region: "Lagos" }]
+  },
+  {
+    id: "nineless-b-boost-10-niacinamide-serum-30",
+    category: "treatment", brand: "Nineless", name: "B-Boost 10% Niacinamide Serum", size: "30 ml",
+    active: "niacinamide", strength: "10% niacinamide",
+    skins: ["Oily", "Dry", "Combination"], avoidConcerns: ["Something else"], fragrance: "none_listed",
+    rank: { "Oily": 2, "Combination": 2, "Dry": 3 },
+    concernRank: { "Dark Spots": 2, "Both": 3, "Acne": 4 },
+    why: "A 10% niacinamide serum in a dropper bottle, sold for blemishes and dull skin.",
+    cautions: ["Prices differ a lot between sellers: ₦9,900 at one store and ₦19,500 at one pharmacy. Compare before you buy.", "10% is stronger. If your skin is sensitive, choose the 5% serum instead."],
+    prices: [
+      { channel: "Nectar Beauty Hub", kind: "store", priceNGN: 9900, label: "listed price", checkedOn: "2026-11-10", url: "https://nectarbeautyhub.com/products/nineless-b-boost-10-niacinamide-serum-30ml-achieve-radiant-skin", region: "Lagos" },
+      { channel: "GoMed", kind: "online-pharmacy", priceNGN: 19500, label: "last known price", checkedOn: "2026-11-10", url: "https://gomed.ng/p/20973-nineless-b-boost-10-niacinamide-serum-30ml" }
+    ]
+  },
+  {
+    id: "the-ordinary-azelaic-acid-suspension-10-30",
+    category: "treatment", brand: "The Ordinary", name: "Azelaic Acid Suspension 10%", size: "30 ml",
+    active: "azelaic acid", strength: "10% azelaic acid",
+    skins: ["Oily", "Dry", "Combination", "Sensitive", "I don't know"], avoidConcerns: ["Something else"], fragrance: "none_listed",
+    rank: { "Oily": 1, "Combination": 1, "Dry": 1, "Sensitive": 2, "I don't know": 2 },
+    concernRank: { "Both": 1, "Acne": 2, "Dark Spots": 3 },
+    why: "Azelaic acid works on both acne and the dark marks acne leaves behind. Dermatology guidance says it can be a good fit for darker skin tones and for sensitive skin.",
+    cautions: ["Tingling or stinging in the first weeks is common. Patch test first.", "Only one seller found, and its page does not say whether it is in stock. Check before you pay."],
+    prices: [{ channel: "HealthPlus", kind: "online-pharmacy", priceNGN: 21500, label: "listed price", checkedOn: "2026-11-10", url: "https://healthplusnigeria.com/products/the-ordinary-azelaic-acid-10-suspension-30ml" }]
+  },
+  {
+    id: "nineless-a-control-10-azelaic-acid-serum-30",
+    category: "treatment", brand: "Nineless", name: "A-Control 10% Azelaic Acid Serum", size: "30 ml",
+    active: "azelaic acid", strength: "10% azelaic acid",
+    skins: ["Oily", "Dry", "Combination", "Sensitive", "I don't know"], avoidConcerns: ["Something else"], fragrance: "none_listed",
+    rank: { "Oily": 2, "Combination": 2, "Dry": 2, "Sensitive": 3, "I don't know": 3 },
+    concernRank: { "Both": 1, "Acne": 2, "Dark Spots": 3 },
+    why: "A 10% azelaic acid serum for acne and the dark marks it leaves.",
+    cautions: ["Tingling or stinging in the first weeks is common. Patch test first.", "The price is the pharmacy's last known price and may have changed. Confirm it before you go."],
+    prices: [{ channel: "GoMed", kind: "online-pharmacy", priceNGN: 19500, label: "last known price", checkedOn: "2026-11-10", url: "https://gomed.ng/p/20967-nineless-a-control-10-azelaic-acid-serum-30ml" }]
+  },
+  {
+    id: "oxy-5-benzoyl-peroxide-10",
+    category: "treatment", brand: "Oxy", name: "5 Acne Pimple Medication", size: "10 g",
+    active: "benzoyl peroxide", strength: "5% benzoyl peroxide",
+    skins: ["Oily", "Combination"], avoidConcerns: ["Dark Spots", "Both", "Something else"], fragrance: "none_listed",
+    rank: { "Oily": 1, "Combination": 1 },
+    concernRank: { "Acne": 1 },
+    why: "Benzoyl peroxide kills acne bacteria, and dermatologist guidance lists it as a first-choice acne treatment. Lower strengths such as 5% usually work about as well as 10%, with less irritation.",
+    cautions: ["Dryness and peeling are common at first.", "It bleaches towels, pillowcases and clothes.", "Only one seller found. Its own page says the usual price is ₦9,500 to ₦11,000, so the price shown may be high."],
+    prices: [{ channel: "GoMed", kind: "online-pharmacy", priceNGN: 13500, label: "last known price", checkedOn: "2026-11-10", url: "https://gomed.ng/product/oxy-5-10g-nig" }]
   }
 ];

@@ -27,10 +27,16 @@ export function budgetCap(budget: string): number {
  * Acne and dark spots together: a wash first for the acne, then sunscreen to protect the marks, then moisturiser.
  * Acne or anything else: a gentle wash and a light moisturiser first, then sunscreen. Sunscreen is still advised for
  * everyone, but it is the dearest product on the list and should not swallow a small budget.
+ *
+ * A treatment (niacinamide, azelaic acid, benzoyl peroxide) comes after the basics it needs around it, and is only
+ * offered for acne and dark spots. For "something else" we never suggest one: an active ingredient needs a reason.
+ * Dark spots and both: treatment before moisturiser, because that is the product the person asked about.
+ * Acne: moisturiser first, because benzoyl peroxide dries the skin and a moisturiser is what keeps it comfortable.
  */
 export function orderFor(concern: ConcernName): Category[] {
-  if (concern === "Dark Spots") return ["sunscreen", "cleanser", "moisturiser"];
-  if (concern === "Both") return ["cleanser", "sunscreen", "moisturiser"];
+  if (concern === "Dark Spots") return ["sunscreen", "cleanser", "treatment", "moisturiser"];
+  if (concern === "Both") return ["cleanser", "sunscreen", "treatment", "moisturiser"];
+  if (concern === "Acne") return ["cleanser", "moisturiser", "treatment", "sunscreen"];
   return ["cleanser", "moisturiser", "sunscreen"];
 }
 
@@ -39,7 +45,8 @@ export function eligible(p: Product, skin: SkinType, concern: ConcernName): bool
   return buyable(p) && p.skins.includes(skin) && !p.avoidConcerns.includes(concern) && !(gentle && p.fragrance === "contains");
 }
 
-const rankFor = (p: Product, skin: SkinType) => p.rank[skin] ?? 9;
+/** Treatments are ranked by concern first (their concernRank), then by skin type. Other products only have the skin rank. */
+const rankFor = (p: Product, skin: SkinType, concern: ConcernName) => (p.concernRank?.[concern] ?? 0) * 100 + (p.rank[skin] ?? 9);
 
 export type Pick = { category: Category; chosen: Product; alternatives: Product[] };
 export type Deferred = { category: Category; cheapest: Product; best: Product };
@@ -59,7 +66,7 @@ export function recommend(input: { skin: SkinType; concern: ConcernName; budget:
   const lists = orderFor(concern).map(category => ({
     category,
     list: products.filter(p => p.category === category && eligible(p, skin, concern))
-      .sort((a, b) => rankFor(a, skin) - rankFor(b, skin) || planPrice(a) - planPrice(b))
+      .sort((a, b) => rankFor(a, skin, concern) - rankFor(b, skin, concern) || planPrice(a) - planPrice(b))
   }));
   const cheapestOf = (list: Product[]) => list.reduce((m, p) => (planPrice(p) < planPrice(m) ? p : m));
   const missing = lists.filter(x => x.list.length === 0).map(x => x.category);
@@ -75,13 +82,21 @@ export function recommend(input: { skin: SkinType; concern: ConcernName; budget:
   }
 
   // 2. Start from the cheapest pick in each kept category, then upgrade to the best-ranked one the leftover allows.
+  //    The treatment is upgraded first: the difference between treatments matters most (for acne, benzoyl peroxide
+  //    comes before niacinamide), while the basics are fine at their cheapest.
   let leftover = cap === Infinity ? Infinity : cap - used;
-  const startWith: Pick[] = included.map(x => {
+  const chosenBy = new Map<Category, Product>();
+  const upgradeOrder = [...included].sort((a, b) => Number(b.category === "treatment") - Number(a.category === "treatment"));
+  for (const x of upgradeOrder) {
     let chosen = cheapestOf(x.list);
     for (const cand of x.list) {
       const extra = planPrice(cand) - planPrice(chosen);
       if (extra <= leftover) { leftover -= Math.max(extra, 0); chosen = cand; break; }
     }
+    chosenBy.set(x.category, chosen);
+  }
+  const startWith: Pick[] = included.map(x => {
+    const chosen = chosenBy.get(x.category)!;
     return { category: x.category, chosen, alternatives: x.list.filter(p => p.id !== chosen.id).slice(0, 2) };
   });
   const startTotalHigh = startWith.reduce((s, p) => s + planPrice(p.chosen), 0);

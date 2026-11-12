@@ -331,8 +331,10 @@ button:disabled { cursor: not-allowed; opacity: .65; }
 .home-hero__copy { max-width: 40rem; }
 .home-hero h1 { max-width: 11ch; margin-bottom: .5em; color: var(--color-text); font-size: var(--step-display); line-height: 1.05; }
 .home-hero h1 .hand-underline { position: relative; display: inline-block; color: var(--color-brand); font-style: italic; }
-.hand-underline svg { position: absolute; right: -3%; bottom: -.35rem; width: 106%; height: .48rem; overflow: visible; }
-.hand-underline path { fill: none; stroke: var(--color-leaf); stroke-width: 4; stroke-linecap: round; }
+/* Same swash as the wordmark: the line runs under the word and the leaf pokes out just past the final letter. */
+.hand-underline svg { position: absolute; left: 0; bottom: -.19em; width: 105%; max-width: none; height: .31em; overflow: visible; }
+.hand-underline path { fill: none; stroke: var(--color-leaf); stroke-width: 4.2; stroke-linecap: round; }
+.hand-underline .hand-underline__leaf { fill: var(--color-leaf); stroke: none; }
 .home-hero__lede { max-width: 43ch; margin-bottom: 1.5rem; color: var(--color-text-muted); font-size: 1.125rem; }
 .home-hero__actions { display: flex; flex-wrap: wrap; gap: .75rem; }
 .home-hero__actions .button { min-height: 3.25rem; }

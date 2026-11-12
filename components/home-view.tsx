@@ -30,7 +30,7 @@ export function HomeView() {
       <AmbientSprites side="right"/>
       <div className="home-hero__copy">
         <p className="eyebrow">Skincare that starts with your skin</p>
-        <h1>Your skin <span className="hand-underline">sabi<svg aria-hidden="true" viewBox="0 0 150 20"><path d="M4 13c28-10 40 4 69-2s46-7 73 0"/></svg></span> pass.</h1>
+        <h1>Your skin <span className="hand-underline">sabi<svg aria-hidden="true" viewBox="0 0 175 26" preserveAspectRatio="none" focusable="false"><path d="M3 15C32 5 58 22 88 11S138 6 160 13"/><path className="hand-underline__leaf" d="M158 14c2.7-10.8 12.2-16.2 23-14.9-1.4 10.8-10.8 17.6-23 14.9Z"/></svg></span> pass.</h1>
         <p className="home-hero__lede">Test am, watch am, trust your skin. Build a gentle routine that fits your skin, your budget, and your life in Nigeria.</p>
         <div className="home-hero__actions">
           <RoutineCta className="button button--cta">Build My Routine <Icon name="arrow-right"/></RoutineCta>

@@ -1,5 +1,7 @@
 export type Skin = "I don't know" | "Oily" | "Dry" | "Combination" | "Sensitive";
-export type Concern = "Acne" | "Dark Spots" | "Both" | "Something else";
+import { MARK_CONCERNS, TREATMENT_CONCERNS, type ConcernName } from "./concerns";
+
+export type Concern = ConcernName;
 export type Budget = "Under ₦15k" | "₦15k–₦30k" | "₦30k+";
 export type Step = { name: string; look: string; why: string; later?: string };
 
@@ -62,16 +64,87 @@ export const avoidByConcern: Record<Concern, string> = {
   "Acne": "Picking pimples, and home remedies such as toothpaste, lime or lemon on spots.",
   "Dark Spots": "Bleaching or \"lightening\" creams, lemon juice and harsh scrubs. They can make marks darker or damage skin.",
   "Both": "Picking pimples, bleaching creams, lemon juice and harsh scrubs.",
+  "Sunburn or tan marks": "More sun while the skin heals, lotions with alcohol or fragrance, scrubs and peels, and popping blisters. Skip lemon juice, toothpaste and bleaching creams.",
+  "Dull or uneven tone": "Bleaching or \"lightening\" creams, harsh scrubs, lemon juice and baking soda. They damage skin and can make tone more uneven.",
+  "Dry, flaky or tight skin": "Long hot showers, bar soap, scrubs and alcohol-heavy toners. Keep showers to about 10 minutes and use lukewarm water.",
+  "Healthy skin, just maintenance": "Bleaching or \"lightening\" creams, and starting many new products at once. Healthy skin needs simple care, not extra actives.",
   "Something else": "",
 };
 export const seeDoctor: Record<Concern, string> = {
   "Acne": "Your pimples are deep, painful or leave scars.",
   "Dark Spots": "A dark patch spreads quickly, bleeds or changes shape.",
   "Both": "Pimples are deep or painful, or a dark patch spreads quickly or changes shape.",
+  "Sunburn or tan marks": "You have large blisters, blisters on your face or hands, fever or chills, severe pain, or signs of infection such as pus or swelling. Get urgent care for confusion, fainting, or a high fever with vomiting.",
+  "Dull or uneven tone": "A patch is new, spreading, itchy or bleeding, or your skin colour changes suddenly.",
+  "Dry, flaky or tight skin": "The dryness does not improve with moisturiser, or the skin is inflamed or painful, or it cracks into sores.",
+  "Healthy skin, just maintenance": "Something changes suddenly, such as itching, a rash, swelling, or a new patch that grows or bleeds.",
   "Something else": "You have itching, a rash, swelling or a sudden change in your skin.",
 };
 
+/** Short guidance shown above the plan for concerns that need more than a product list. */
+export const concernNote: Partial<Record<Concern, { title: string; lines: string[] }>> = {
+  "Sunburn or tan marks": {
+    title: "If your sunburn is still fresh",
+    lines: [
+      "Get out of the sun. Cool the skin with a cool (not ice-cold) bath or shower, or a cool damp cloth, then pat dry.",
+      "While the skin is still damp, apply aloe vera gel or a plain, fragrance-free moisturiser. Avoid lotions with alcohol or fragrance.",
+      "Drink extra water, because a sunburn can dehydrate you. Leave blisters alone, because popping them can cause infection.",
+      "Stay out of the sun or cover up until the skin has healed. After that, wear sunscreen every day. New sun on healing skin makes marks darker.",
+    ],
+  },
+  "Dull or uneven tone": {
+    title: "About dull or uneven tone",
+    lines: [
+      "Dullness usually comes from sun, dry skin and dead skin building up. Daily sunscreen, gentle washing and moisturiser do most of the work.",
+      "A treatment can even out marks slowly. Nothing safe changes your natural skin colour, and bleaching creams can permanently damage skin.",
+    ],
+  },
+  "Dry, flaky or tight skin": {
+    title: "About dry, flaky or tight skin",
+    lines: [
+      "Dry skin needs water kept in, not more products. Keep showers short and lukewarm, and moisturise while the skin is still slightly damp.",
+      "Use a cream or non-foaming wash instead of bar soap, and wear sunscreen even on cloudy days.",
+    ],
+  },
+  "Healthy skin, just maintenance": {
+    title: "Your skin is doing well",
+    lines: [
+      "Keep it simple: wash gently, moisturise and wear sunscreen. You do not need a treatment.",
+      "Do not use skin-lightening or bleaching products. They do not improve healthy skin and can damage it.",
+    ],
+  },
+};
+
+/** True when the concern has a real reason to use a treatment (an active ingredient). */
+export const offersTreatment = (concern: string) => TREATMENT_CONCERNS.includes(concern as Concern);
+
+const BUDGETS: Budget[] = ["Under ₦15k", "₦15k–₦30k", "₦30k+"];
+const forEveryBudget = (t: Treatment): Record<Budget, Treatment> => ({ "Under ₦15k": t, "₦15k–₦30k": t, "₦30k+": t });
+const forEveryGroup = (t: Treatment): Record<TreatmentGroup, Record<Budget, Treatment>> => ({ gentle: forEveryBudget(t), oily: forEveryBudget(t), dry: forEveryBudget(t) });
+const laterEverywhere = (text: string): Treatment["later"] => Object.fromEntries(BUDGETS.map(b => [b, text])) as Record<Budget, string>;
+
 const treatment: Record<Concern, Record<TreatmentGroup, Record<Budget, Treatment>>> = {
+  "Sunburn or tan marks": forEveryGroup({
+    title: "No treatment while the burn heals",
+    look: "Care for the burn first (see the note above). Once the skin has fully healed, with no redness, soreness or peeling, you can fade leftover marks.",
+    why: "Active ingredients on burnt skin sting and can make marks worse.",
+    later: laterEverywhere("After it has healed and you have had 4 weeks of gentle care, add niacinamide 5% for the marks."),
+  }),
+  "Dull or uneven tone": {
+    gentle: forEveryBudget({ title: "No treatment yet", look: "Use the three essentials for 4 weeks. Wear sunscreen every day.", why: "Sunscreen, gentle washing and moisturiser do most of the work for dull skin.", later: laterEverywhere("After 4 weeks, add niacinamide 5%. It helps even tone and does not change your natural skin colour.") }),
+    oily: forEveryBudget({ title: "One gentle tone treatment", look: "Niacinamide 5%.", why: "Helps even out tone over 8 to 12 weeks. It does not bleach or change your natural skin colour." }),
+    dry: forEveryBudget({ title: "One gentle tone treatment", look: "Niacinamide 5%.", why: "Helps even out tone over 8 to 12 weeks. It does not bleach or change your natural skin colour." }),
+  },
+  "Dry, flaky or tight skin": forEveryGroup({
+    title: "No treatment needed",
+    look: "Moisture is the treatment. Moisturise twice a day, while your skin is still slightly damp.",
+    why: "Strong products can dry skin out further. Keep it simple until the dryness settles.",
+  }),
+  "Healthy skin, just maintenance": forEveryGroup({
+    title: "No treatment needed",
+    look: "Stay with the three essentials.",
+    why: "Healthy skin does not need extra products. Adding actives can cause the irritation you do not have now.",
+  }),
   "Acne": {
     gentle: {
       "Under ₦15k": { title: "No treatment yet", look: "Use only the three essentials for 4 weeks and track your skin in Test & Watch.", why: "Gentle care first keeps irritation low.", later: { "Under ₦15k": "If pimples stay after 4 weeks, add niacinamide 2 to 5%. One product, patch tested first." } },
@@ -149,13 +222,23 @@ export type RoutinePlan = {
   night: Step[];
   avoid: string[];
   seeDoctor: string;
+  concernNote?: { title: string; lines: string[] };
 };
+
+/** The budget text, without treatment lines for concerns that do not use one. */
+function budgetFor(budget: Budget, concern: Concern): RoutinePlan["budget"] {
+  const base = budgetPlan[budget];
+  if (offersTreatment(concern)) return base;
+  const buyFirst = base.buyFirst.filter(line => !/treatment/i.test(line));
+  if (budget === "₦15k–₦30k") return { headline: "Essentials, with room to choose", note: "Your concern does not need a treatment, so the whole budget can go on good basics. Choose formulas you will enjoy using every day.", buyFirst };
+  return { ...base, headline: budget === "₦30k+" ? "Essentials and a professional check" : base.headline, buyFirst };
+}
 
 export function buildRoutinePlan({ skin, concern, budget }: { skin: Skin; concern: Concern; budget: Budget }): RoutinePlan {
   const group: TreatmentGroup = skin === "Sensitive" || skin === "I don't know" ? "gentle" : skin === "Dry" ? "dry" : "oily";
   const sunscreenStep = { ...sunscreen[skin] };
   if (concern === "Acne" || concern === "Both") sunscreenStep.look += sunscreenAcne;
-  if (concern === "Dark Spots" || concern === "Both") sunscreenStep.look += sunscreenSpots;
+  if (MARK_CONCERNS.includes(concern)) sunscreenStep.look += sunscreenSpots;
   const treatmentOption = treatment[concern][group][budget];
   const nightTreatment: Step = {
     name: treatmentOption.title,
@@ -166,10 +249,11 @@ export function buildRoutinePlan({ skin, concern, budget }: { skin: Skin; concer
 
   return {
     chips: [skin, concern, budget],
-    budget: budgetPlan[budget],
+    budget: budgetFor(budget, concern),
     morning: [cleanser[skin], moisturiser[skin], sunscreenStep],
     night: [cleanser[skin], nightTreatment, moisturiser[skin]],
     avoid: [avoidBySkin[skin], avoidByConcern[concern]].filter(Boolean),
     seeDoctor: seeDoctor[concern],
+    ...(concernNote[concern] ? { concernNote: concernNote[concern] } : {}),
   };
 }

@@ -9,6 +9,7 @@ import { GoogleButton } from "@/components/google-button";
 import { Illustration } from "@/components/illustration";
 import { Wordmark } from "@/components/site-shell";
 import { Icon, Input, Select } from "@/components/ui";
+import { concernOptions } from "@/lib/concerns";
 import { NIGERIAN_STATES } from "@/lib/nigeria-states";
 import { nextFromLocation } from "@/lib/safe-next";
 import { supabase } from "@/lib/supabase";
@@ -82,7 +83,7 @@ export default function Signup() {
         <Input label="Email" required type="email" value={email} onChange={event => setEmail(event.target.value)} placeholder="you@example.com" autoComplete="email"/>
         <Input label="Password (8+ characters)" required minLength={8} type="password" value={password} onChange={event => setPassword(event.target.value)} autoComplete="new-password"/>
         <Select label="Skin type" value={skin} onChange={event => setSkin(event.target.value)}>{["Oily", "Dry", "Combination", "Sensitive", "I Don't Know"].map(option => <option key={option}>{option}</option>)}</Select>
-        <Select label="Main concern" value={concern} onChange={event => setConcern(event.target.value)}>{["Acne", "Dark Spots", "Both", "Something else"].map(option => <option key={option}>{option}</option>)}</Select>
+        <Select label="Main concern" value={concern} onChange={event => setConcern(event.target.value)}>{concernOptions.map(option => <option key={option}>{option}</option>)}</Select>
         <Select label="Budget" value={budget} onChange={event => setBudget(event.target.value)}>{["Under ₦15k", "₦15k–₦30k", "₦30k+"].map(option => <option key={option}>{option}</option>)}</Select>
         <Select label="Where do you live? (optional)" value={state} onChange={event => setState(event.target.value)}>
           <option value="">Prefer not to say</option>

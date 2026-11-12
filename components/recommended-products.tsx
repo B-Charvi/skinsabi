@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { Callout, Chip } from "@/components/ui";
 import { high, inStock, low, recommend, type Recommendation } from "@/lib/recommend";
-import { ACTIVE_GUIDE, SEE_A_DOCTOR, TREATMENT_RULES } from "@/lib/treatment-safety";
+import { MARK_CONCERNS } from "@/lib/concerns";
+import { ACTIVE_GUIDE, seeADoctorFor, treatmentRulesFor } from "@/lib/treatment-safety";
 import { PRICES_COLLECTED, type Category, type ConcernName, type PriceEntry, type Product, type SkinType } from "@/lib/recommended-products";
 
 const categoryLabel: Record<Category, string> = { sunscreen: "Sunscreen", cleanser: "Cleanser", moisturiser: "Moisturiser", treatment: "Treatment" };
@@ -94,12 +95,12 @@ export function RecommendedProducts({ skin, concern, budget, state }: { skin: st
   const treatmentLater = addWhenYouCan.find(item => item.category === "treatment");
   const treatmentSafety = (treatmentPick || treatmentLater) && <Callout tone="warning" title="Before you use any treatment">
     <p>Treatments are active ingredients. They can help, but they can also irritate or harm skin when used the wrong way.</p>
-    <ul className="reco-rules">{TREATMENT_RULES.map(rule => <li key={rule}>{rule}</li>)}</ul>
+    <ul className="reco-rules">{treatmentRulesFor(concern).map(rule => <li key={rule}>{rule}</li>)}</ul>
     <p><strong>See a doctor, not a shop, if you have:</strong></p>
-    <ul className="reco-rules">{SEE_A_DOCTOR.map(rule => <li key={rule}>{rule}</li>)}</ul>
+    <ul className="reco-rules">{seeADoctorFor(concern).map(rule => <li key={rule}>{rule}</li>)}</ul>
     <p>Strengths on this page are what the sellers say. We have not tested the products. Check the NAFDAC number on the pack, and be careful when a well-known brand is far cheaper than at other sellers, because that can mean a fake.</p>
   </Callout>;
-  const darkSpots = concern === "Dark Spots" || concern === "Both";
+  const darkSpots = MARK_CONCERNS.includes(concern as Parameters<typeof MARK_CONCERNS.includes>[0]);
 
   return <article className="card routine-plan-card routine-plan-card--wide reco-card" aria-labelledby="reco-title">
     <h2 id="reco-title">Products that fit your plan</h2>
@@ -107,6 +108,7 @@ export function RecommendedProducts({ skin, concern, budget, state }: { skin: st
       {state ? <>Where to buy lines use your state: {state}. <Link href="/profile#state">Change</Link></> : <>Add your state to see delivery notes. <Link href="/profile#state">Add it</Link></>}
     </p>
     <p>Based on your skin type, concern and budget. These are suggestions to start your patch test. They are not medical advice.</p>
+    <p className="reco-nobleach"><strong>No bleaching products.</strong> We do not list skin-lightening or bleaching creams. Everything here is gentle and not meant to change your natural skin colour.</p>
 
     {basics.length > 0 && <>
       <h3>Start with</h3>

@@ -5,12 +5,13 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useAuth } from "@/components/auth-provider";
 import { Button, Callout, Input, Select } from "@/components/ui";
+import { concernOptions } from "@/lib/concerns";
 import { NIGERIAN_STATES } from "@/lib/nigeria-states";
 import { matchOption, nextFromLocation } from "@/lib/safe-next";
 import { supabase } from "@/lib/supabase";
 
 const skinOptions = ["Oily", "Dry", "Combination", "Sensitive", "I Don't Know"];
-const concernOptions = ["Acne", "Dark Spots", "Both", "Something else"];
+
 const budgetOptions = ["Under ₦15k", "₦15k–₦30k", "₦30k+"];
 const reserved = ["admin", "administrator", "skinsabi", "support", "help", "root", "moderator"];
 

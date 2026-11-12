@@ -2,7 +2,8 @@ export type Category = "sunscreen" | "cleanser" | "moisturiser" | "treatment";
 /** The active ingredient of a treatment product. Each one has its own how-to-start and warning lines in treatment-safety.ts. */
 export type ActiveKind = "niacinamide" | "azelaic acid" | "benzoyl peroxide";
 export type SkinType = "I don't know" | "Oily" | "Dry" | "Combination" | "Sensitive";
-export type ConcernName = "Acne" | "Dark Spots" | "Both" | "Something else";
+import { allConcernsExcept, type ConcernName } from "./concerns";
+export type { ConcernName };
 export type Fragrance = "free_claim" | "none_listed" | "contains";
 
 export type PriceEntry = {
@@ -36,7 +37,7 @@ export type Product = {
 
 const J = (q: string) => `https://www.jumia.com.ng/catalog/?q=${encodeURIComponent(q)}`;
 
-export const PRICES_COLLECTED = "29 October to 10 November 2026";
+export const PRICES_COLLECTED = "29 October to 12 November 2026";
 
 export const products: Product[] = [
   {
@@ -78,7 +79,7 @@ export const products: Product[] = [
   {
     id: "cerave-foaming-facial-cleanser-236",
     category: "cleanser", brand: "CeraVe", name: "Foaming Facial Cleanser", size: "236 ml",
-    skins: ["Oily", "Combination"], avoidConcerns: [], fragrance: "none_listed",
+    skins: ["Oily", "Combination"], avoidConcerns: ["Dry, flaky or tight skin"], fragrance: "none_listed",
     rank: { "Oily": 1, "Combination": 1 },
     why: "A foaming gel cleanser for normal to oily skin, with ceramides and niacinamide.",
     cautions: ["Formulas can differ by country. Check the pack's ingredient list for \"parfum\"."],
@@ -95,14 +96,14 @@ export const products: Product[] = [
   },
   {
     id: "dove-beauty-bar",
-    category: "cleanser", brand: "Dove", name: "Beauty Bar (cream bar)", size: "1 bar",
-    skins: ["Oily", "Dry", "Combination"], avoidConcerns: ["Acne", "Both"], fragrance: "contains",
+    category: "cleanser", brand: "Dove", name: "Beauty Bar (cream bar)", size: "90 g bar",
+    skins: ["Oily", "Dry", "Combination"], avoidConcerns: ["Acne", "Both", "Sunburn or tan marks", "Dry, flaky or tight skin"], fragrance: "contains",
     rank: { "Oily": 3, "Combination": 3, "Dry": 3 },
-    why: "A low-cost mild beauty bar. A budget swap for a facial wash when a wash is out of reach.",
-    cautions: ["Fragranced. Not for sensitive skin.", "Bar soap can be harsher than a gentle wash, so we do not suggest it when acne is your concern.", "The prices we found were old (2023) and varied by pack size. Check the current price."],
+    why: "A mild beauty bar. It is only an option when a facial wash is out of reach, and only worth it if you can buy a single bar.",
+    cautions: ["Fragranced. Not for sensitive skin.", "Bar soap can be harsher than a gentle wash, so we do not suggest it when acne is your concern.", "Online it is sold in packs of 4 (about ₦9,000 to ₦10,800 on Jumia). A single bar was ₦1,600 at a pharmacy, but that is its last known price."],
     prices: [
-      { channel: "Jumia", kind: "marketplace", priceNGN: 1500, label: "old price", checkedOn: "2026-10-30", url: J("dove beauty cream bar soap") },
-      { channel: "Jumia", kind: "marketplace", priceNGN: 5000, label: "old price", checkedOn: "2026-10-30", url: J("dove beauty cream bar soap") }
+      { channel: "Jumia", kind: "marketplace", priceNGN: 9500, label: "listed price", checkedOn: "2026-11-12", url: "https://www.jumia.com.ng/slp/dove-beauty-cream-bar-soap" },
+      { channel: "GoMed", kind: "online-pharmacy", priceNGN: 1600, label: "last known price", checkedOn: "2026-11-12", url: "https://gomed.ng/p/16302-dove-beauty-cream-bar" }
     ]
   },
   {
@@ -130,7 +131,7 @@ export const products: Product[] = [
   {
     id: "vaseline-original-jelly-50",
     category: "moisturiser", brand: "Vaseline", name: "Original Petroleum Jelly", size: "50 ml",
-    skins: ["Dry"], avoidConcerns: ["Acne", "Both"], fragrance: "none_listed",
+    skins: ["Dry"], avoidConcerns: ["Acne", "Both", "Sunburn or tan marks"], fragrance: "none_listed",
     rank: { "Dry": 2 },
     why: "A sealant, not a lotion. A thin layer over damp skin locks in water on very dry areas.",
     cautions: ["Not for oily or acne-prone skin.", "The price was marked \"last known\" and looks low. Check the current price."],
@@ -187,7 +188,7 @@ export const products: Product[] = [
   {
     id: "face-facts-ceramide-blemish-foaming-cleanser-400",
     category: "cleanser", brand: "Face Facts", name: "Ceramide Blemish Clarifying Foaming Cleanser", size: "400 ml",
-    skins: ["Oily", "Combination"], avoidConcerns: ["Dark Spots", "Something else"], fragrance: "free_claim",
+    skins: ["Oily", "Combination"], avoidConcerns: allConcernsExcept("Acne", "Both"), fragrance: "free_claim",
     rank: { "Oily": 1, "Combination": 1 },
     why: "A gel-to-foam wash with 2% salicylic acid, five ceramides and niacinamide for blemish-prone and oily skin. The brand labels it fragrance-free.",
     cautions: ["Contains 2% salicylic acid, which can sting or dry the skin. Start with once a day.", "Not suggested for dry skin. We offer it only when acne is your concern."],
@@ -199,7 +200,7 @@ export const products: Product[] = [
   {
     id: "cosrx-salicylic-acid-daily-gentle-cleanser-150",
     category: "cleanser", brand: "COSRX", name: "Salicylic Acid Daily Gentle Cleanser", size: "150 ml",
-    skins: ["Oily", "Combination"], avoidConcerns: ["Dark Spots", "Something else"], fragrance: "contains",
+    skins: ["Oily", "Combination"], avoidConcerns: allConcernsExcept("Acne", "Both"), fragrance: "contains",
     rank: { "Oily": 3, "Combination": 3 },
     why: "A gel wash with 0.5% salicylic acid, a milder strength than many acne washes.",
     cautions: ["The brand says \"artificial fragrance free\", but \"Fragrance\" is in the ingredient list, so we treat it as fragranced. Skip it if your skin is sensitive."],
@@ -227,9 +228,9 @@ export const products: Product[] = [
     id: "advanced-clinicals-5-niacinamide-serum-52",
     category: "treatment", brand: "Advanced Clinicals", name: "5% Niacinamide Serum", size: "52 ml",
     active: "niacinamide", strength: "5% niacinamide",
-    skins: ["Oily", "Dry", "Combination", "Sensitive", "I don't know"], avoidConcerns: ["Something else"], fragrance: "none_listed",
+    skins: ["Oily", "Dry", "Combination", "Sensitive", "I don't know"], avoidConcerns: allConcernsExcept("Acne", "Dark Spots", "Both", "Sunburn or tan marks", "Dull or uneven tone"), fragrance: "none_listed",
     rank: { "Sensitive": 1, "I don't know": 1, "Dry": 1, "Oily": 2, "Combination": 2 },
-    concernRank: { "Dark Spots": 1, "Both": 2, "Acne": 3 },
+    concernRank: { "Dark Spots": 1, "Both": 2, "Acne": 3, "Sunburn or tan marks": 1, "Dull or uneven tone": 1 },
     why: "Niacinamide is a form of vitamin B3. Studies suggest it can slowly fade dark marks and calm oil when it is used every day with sunscreen. 5% is the gentler end of what is sold, so it is the one we offer first to sensitive skin.",
     cautions: ["Some people flush or itch with niacinamide. Patch test first, and stop if it happens.", "The 5% claim comes from the seller. It is not lab-verified."],
     prices: [
@@ -241,9 +242,9 @@ export const products: Product[] = [
     id: "good-molecules-niacinamide-serum-30",
     category: "treatment", brand: "Good Molecules", name: "Niacinamide Serum", size: "30 ml",
     active: "niacinamide", strength: "10% niacinamide",
-    skins: ["Oily", "Dry", "Combination"], avoidConcerns: ["Something else"], fragrance: "none_listed",
+    skins: ["Oily", "Dry", "Combination"], avoidConcerns: allConcernsExcept("Acne", "Dark Spots", "Both", "Dull or uneven tone"), fragrance: "none_listed",
     rank: { "Oily": 1, "Combination": 1, "Dry": 2 },
-    concernRank: { "Dark Spots": 2, "Both": 3, "Acne": 4 },
+    concernRank: { "Dark Spots": 2, "Both": 3, "Acne": 4, "Dull or uneven tone": 2 },
     why: "A 10% niacinamide serum. A stronger step than 5% for oily or combination skin that has already tolerated niacinamide.",
     cautions: ["10% is stronger. If your skin is sensitive, choose the 5% serum instead.", "Some people flush or itch with niacinamide. Patch test first, and stop if it happens."],
     prices: [{ channel: "Nectar Beauty Hub", kind: "store", priceNGN: 11400, label: "listed price", checkedOn: "2026-11-10", url: "https://nectarbeautyhub.com/products/niacinamide-serum", region: "Lagos" }]
@@ -252,9 +253,9 @@ export const products: Product[] = [
     id: "nineless-b-boost-10-niacinamide-serum-30",
     category: "treatment", brand: "Nineless", name: "B-Boost 10% Niacinamide Serum", size: "30 ml",
     active: "niacinamide", strength: "10% niacinamide",
-    skins: ["Oily", "Dry", "Combination"], avoidConcerns: ["Something else"], fragrance: "none_listed",
+    skins: ["Oily", "Dry", "Combination"], avoidConcerns: allConcernsExcept("Acne", "Dark Spots", "Both", "Dull or uneven tone"), fragrance: "none_listed",
     rank: { "Oily": 2, "Combination": 2, "Dry": 3 },
-    concernRank: { "Dark Spots": 2, "Both": 3, "Acne": 4 },
+    concernRank: { "Dark Spots": 2, "Both": 3, "Acne": 4, "Dull or uneven tone": 2 },
     why: "A 10% niacinamide serum in a dropper bottle, sold for blemishes and dull skin.",
     cautions: ["Prices differ a lot between sellers: ₦9,900 at one store and ₦19,500 at one pharmacy. Compare before you buy.", "10% is stronger. If your skin is sensitive, choose the 5% serum instead."],
     prices: [
@@ -266,7 +267,7 @@ export const products: Product[] = [
     id: "the-ordinary-azelaic-acid-suspension-10-30",
     category: "treatment", brand: "The Ordinary", name: "Azelaic Acid Suspension 10%", size: "30 ml",
     active: "azelaic acid", strength: "10% azelaic acid",
-    skins: ["Oily", "Dry", "Combination", "Sensitive", "I don't know"], avoidConcerns: ["Something else"], fragrance: "none_listed",
+    skins: ["Oily", "Dry", "Combination", "Sensitive", "I don't know"], avoidConcerns: allConcernsExcept("Acne", "Dark Spots", "Both"), fragrance: "none_listed",
     rank: { "Oily": 1, "Combination": 1, "Dry": 1, "Sensitive": 2, "I don't know": 2 },
     concernRank: { "Both": 1, "Acne": 2, "Dark Spots": 3 },
     why: "Azelaic acid works on both acne and the dark marks acne leaves behind. Dermatology guidance says it can be a good fit for darker skin tones and for sensitive skin.",
@@ -277,7 +278,7 @@ export const products: Product[] = [
     id: "nineless-a-control-10-azelaic-acid-serum-30",
     category: "treatment", brand: "Nineless", name: "A-Control 10% Azelaic Acid Serum", size: "30 ml",
     active: "azelaic acid", strength: "10% azelaic acid",
-    skins: ["Oily", "Dry", "Combination", "Sensitive", "I don't know"], avoidConcerns: ["Something else"], fragrance: "none_listed",
+    skins: ["Oily", "Dry", "Combination", "Sensitive", "I don't know"], avoidConcerns: allConcernsExcept("Acne", "Dark Spots", "Both"), fragrance: "none_listed",
     rank: { "Oily": 2, "Combination": 2, "Dry": 2, "Sensitive": 3, "I don't know": 3 },
     concernRank: { "Both": 1, "Acne": 2, "Dark Spots": 3 },
     why: "A 10% azelaic acid serum for acne and the dark marks it leaves.",
@@ -288,7 +289,7 @@ export const products: Product[] = [
     id: "oxy-5-benzoyl-peroxide-10",
     category: "treatment", brand: "Oxy", name: "5 Acne Pimple Medication", size: "10 g",
     active: "benzoyl peroxide", strength: "5% benzoyl peroxide",
-    skins: ["Oily", "Combination"], avoidConcerns: ["Dark Spots", "Both", "Something else"], fragrance: "none_listed",
+    skins: ["Oily", "Combination"], avoidConcerns: allConcernsExcept("Acne"), fragrance: "none_listed",
     rank: { "Oily": 1, "Combination": 1 },
     concernRank: { "Acne": 1 },
     why: "Benzoyl peroxide kills acne bacteria, and dermatologist guidance lists it as a first-choice acne treatment. Lower strengths such as 5% usually work about as well as 10%, with less irritation.",

@@ -5,12 +5,13 @@ import { useAuth } from "@/components/auth-provider";
 import { RecommendedProducts } from "@/components/recommended-products";
 import { supabase } from "@/lib/supabase";
 import { matchOption } from "@/lib/safe-next";
-import { buildRoutinePlan, type Step } from "@/lib/routine-plan";
-import { Chip } from "@/components/ui";
+import { concernOptions } from "@/lib/concerns";
+import { buildRoutinePlan, offersTreatment, type Step } from "@/lib/routine-plan";
+import { Callout, Chip } from "@/components/ui";
 
 type RoutineRow = { morning?: string[]; evening?: string[]; skin_type?: string; concern?: string; budget?: string; sandwich_mode?: boolean };
 const skinOptions = ["I don't know", "Oily", "Dry", "Combination", "Sensitive"];
-const concernOptions = ["Acne", "Dark Spots", "Both", "Something else"];
+
 const budgetOptions = ["Under ₦15k", "₦15k–₦30k", "₦30k+"];
 const baseMorning = ["Gentle cleanser (or water only if dry)", "Moisturizer", "Sunscreen SPF 30+; reapply outdoors"];
 const baseEvening = ["Gentle cleanser", "One treatment only (optional)", "Moisturizer"];
@@ -95,7 +96,7 @@ export function RoutineBuilder() {
 
     <section className="card stack routine-controls">
       <label>Skin type<select value={skin} onChange={e => setSkin(e.target.value)}>{["I don't know", "Oily", "Dry", "Combination", "Sensitive"].map(x => <option key={x}>{x}</option>)}</select></label>
-      <label>Main concern<select value={concern} onChange={e => setConcern(e.target.value)}>{["Acne", "Dark Spots", "Both", "Something else"].map(x => <option key={x}>{x}</option>)}</select></label>
+      <label>Main concern<select value={concern} onChange={e => setConcern(e.target.value)}>{concernOptions.map(x => <option key={x}>{x}</option>)}</select></label>
       <label>Budget<select value={budget} onChange={e => setBudget(e.target.value)}>{["Under ₦15k", "₦15k–₦30k", "₦30k+"].map(x => <option key={x}>{x}</option>)}</select></label>
     </section>
 
@@ -107,6 +108,9 @@ export function RoutineBuilder() {
         <h3>{plan.budget.headline}</h3>
         <p>{plan.budget.note}</p>
         <div className="routine-plan__chips">{plan.chips.map((chip, i) => <Chip key={`${i}-${chip}`} tone="neutral">{chip}</Chip>)}</div>
+        {plan.concernNote && <Callout tone={concern === "Sunburn or tan marks" ? "warning" : "info"} title={plan.concernNote.title}>
+          <ul className="reco-rules">{plan.concernNote.lines.map(line => <li key={line}>{line}</li>)}</ul>
+        </Callout>}
       </article>
 
       <RecommendedProducts skin={skin} concern={concern} budget={budget} state={state}/>
@@ -118,7 +122,7 @@ export function RoutineBuilder() {
 
       <article className="card routine-plan-card">
         <h2>Night</h2>
-        <ol className="routine-plan__steps">{plan.night.map((step, i) => <RoutineStep key={`${step.name}-${i}`} step={step} showProductLink={step.name === "Cleanser" || step.name === "Moisturiser"} note={i === 1 ? "We do not list treatment products yet. Choose one by the ingredient named above and read the label." : undefined}/>)}</ol>
+        <ol className="routine-plan__steps">{plan.night.map((step, i) => <RoutineStep key={`${step.name}-${i}`} step={step} showProductLink={step.name === "Cleanser" || step.name === "Moisturiser"} note={i === 1 && offersTreatment(concern) ? "Treatment products that fit your budget are listed under Products that fit your plan above. Read the label and patch test before you use one." : undefined}/>)}</ol>
       </article>
 
       <article className="card routine-plan-card">

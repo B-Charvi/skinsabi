@@ -1,3 +1,4 @@
+import { GENTLE_CONCERNS } from "./concerns";
 import { products, type Category, type ConcernName, type Product, type SkinType } from "./recommended-products";
 
 /** Prices from sellers that had the product in stock when we checked. */
@@ -23,25 +24,36 @@ export function budgetCap(budget: string): number {
 
 /**
  * The order we try to fit the categories into the budget.
- * Dark spots only: sunscreen first, because sun makes marks darker and slower to fade.
- * Acne and dark spots together: a wash first for the acne, then sunscreen to protect the marks, then moisturiser.
- * Acne or anything else: a gentle wash and a light moisturiser first, then sunscreen. Sunscreen is still advised for
- * everyone, but it is the dearest product on the list and should not swallow a small budget.
  *
- * A treatment (niacinamide, azelaic acid, benzoyl peroxide) comes after the basics it needs around it, and is only
- * offered for acne and dark spots. For "something else" we never suggest one: an active ingredient needs a reason.
- * Dark spots and both: treatment before moisturiser, because that is the product the person asked about.
- * Acne: moisturiser first, because benzoyl peroxide dries the skin and a moisturiser is what keeps it comfortable.
+ * Dark spots and dull or uneven tone: sunscreen first, because sun makes marks darker and slower to fade.
+ * Sunburn or tan marks: moisturiser first, because burnt skin needs comfort first and should stay out of the sun anyway,
+ * then sunscreen for when it has healed.
+ * Acne and dark spots together: a wash first for the acne, then sunscreen to protect the marks, then moisturiser.
+ * Acne, dry skin, healthy skin or anything else: a gentle wash and a light moisturiser first, then sunscreen. Sunscreen
+ * is still advised for everyone, but it is the dearest product on the list and should not swallow a small budget.
+ * Dry skin puts the moisturiser first, because moisture is the whole job.
+ *
+ * A treatment (niacinamide, azelaic acid, benzoyl peroxide) is only in the order for concerns that have a reason for
+ * one: acne, dark spots, both, sunburn marks and dull tone. For dry skin, healthy skin or "something else" we never
+ * suggest one: an active ingredient needs a reason, and healthy skin does not need extras.
+ * Marks and tone: treatment before the moisturiser, because that is the product the person asked about.
+ * Acne: moisturiser first, because benzoyl peroxide dries the skin and a moisturiser keeps it comfortable.
  */
 export function orderFor(concern: ConcernName): Category[] {
-  if (concern === "Dark Spots") return ["sunscreen", "cleanser", "treatment", "moisturiser"];
-  if (concern === "Both") return ["cleanser", "sunscreen", "treatment", "moisturiser"];
-  if (concern === "Acne") return ["cleanser", "moisturiser", "treatment", "sunscreen"];
-  return ["cleanser", "moisturiser", "sunscreen"];
+  switch (concern) {
+    case "Dark Spots": return ["sunscreen", "cleanser", "treatment", "moisturiser"];
+    case "Dull or uneven tone": return ["sunscreen", "cleanser", "treatment", "moisturiser"];
+    case "Sunburn or tan marks": return ["moisturiser", "sunscreen", "cleanser", "treatment"];
+    case "Both": return ["cleanser", "sunscreen", "treatment", "moisturiser"];
+    case "Acne": return ["cleanser", "moisturiser", "treatment", "sunscreen"];
+    case "Dry, flaky or tight skin": return ["moisturiser", "cleanser", "sunscreen"];
+    default: return ["cleanser", "moisturiser", "sunscreen"];
+  }
 }
 
 export function eligible(p: Product, skin: SkinType, concern: ConcernName): boolean {
-  const gentle = skin === "Sensitive" || skin === "I don't know";
+  // Sensitive or unknown skin, burnt skin and very dry skin all leave out fragranced products.
+  const gentle = skin === "Sensitive" || skin === "I don't know" || GENTLE_CONCERNS.includes(concern);
   return buyable(p) && p.skins.includes(skin) && !p.avoidConcerns.includes(concern) && !(gentle && p.fragrance === "contains");
 }
 

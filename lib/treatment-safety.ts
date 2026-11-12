@@ -1,3 +1,4 @@
+import type { ConcernName } from "./concerns";
 import type { ActiveKind } from "./recommended-products";
 
 /**
@@ -18,11 +19,28 @@ export const TREATMENT_RULES: string[] = [
   "Stop and see a pharmacist or doctor if you get burning that does not settle, swelling, blisters or hives. If your lips, tongue or face swell or you find it hard to breathe, get urgent medical help.",
 ];
 
-/** Shown when the concern includes a mark or lump that a cream cannot safely treat. */
-export const SEE_A_DOCTOR: string[] = [
-  "Deep, painful lumps, scarring, or acne that has not improved after about two months of steady use.",
-  "A dark spot that is new, growing, changing shape or colour, or bleeding, or one on your palm, sole or under a nail. It needs a doctor to look at it, not a cream.",
-];
+const SEE_DOCTOR_PIMPLES = "Deep, painful lumps, scarring, or acne that has not improved after about two months of steady use.";
+const SEE_DOCTOR_SPOT = "A dark spot that is new, growing, changing shape or colour, or bleeding, or one on your palm, sole or under a nail. It needs a doctor to look at it, not a cream.";
+
+/** Extra rules that only apply to some concerns. They are shown above the general rules. */
+const EXTRA_RULES: Partial<Record<ConcernName, string[]>> = {
+  "Sunburn or tan marks": [
+    "Do not use a treatment on skin that is still red, sore or peeling. Wait until the burn has fully healed, then start it slowly.",
+  ],
+  "Dull or uneven tone": [
+    "A treatment fades marks slowly, over about 8 to 12 weeks. Nothing safe changes your natural skin colour, and a product that promises that is not safe.",
+  ],
+};
+
+export function treatmentRulesFor(concern: string): string[] {
+  return [...(EXTRA_RULES[concern as ConcernName] ?? []), ...TREATMENT_RULES];
+}
+
+/** "See a doctor, not a shop" lines, kept to the ones that fit the person's concern. */
+export function seeADoctorFor(concern: string): string[] {
+  const pimples = concern === "Acne" || concern === "Both";
+  return [pimples ? SEE_DOCTOR_PIMPLES : "", SEE_DOCTOR_SPOT].filter(Boolean);
+}
 
 export const ACTIVE_GUIDE: Record<ActiveKind, { start: string; watch: string }> = {
   "niacinamide": {

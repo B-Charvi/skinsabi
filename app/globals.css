@@ -293,7 +293,7 @@ button:disabled { cursor: not-allowed; opacity: .65; }
 .site-header { position: sticky; z-index: 20; top: 0; border-bottom: 1px solid var(--color-border-soft); background: var(--color-surface); background: color-mix(in srgb, var(--color-surface) 90%, transparent); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
 .site-header__inner { display: flex; width: min(100% - 2 * var(--page-gutter), 75rem); min-height: 4rem; align-items: center; justify-content: space-between; gap: 1.5rem; margin-inline: auto; }
 .site-header__brand, .site-footer__wordmark { display: inline-flex; flex: none; align-items: center; text-decoration: none; }
-.wordmark { position: relative; display: inline-block; color: var(--color-brand); font-size: 1.6875rem; line-height: 1; white-space: nowrap; }
+.wordmark { position: relative; display: inline-block; width: fit-content; justify-self: start; color: var(--color-brand); font-size: 1.6875rem; line-height: 1; white-space: nowrap; }
 .wordmark__letters { display: inline-block; font-family: var(--font-display), Georgia, serif; font-size: 1em; font-weight: 560; font-variation-settings: "SOFT" 100; letter-spacing: -.02778em; }
 .wordmark__swash { position: absolute; right: 0; bottom: -.2em; width: 2.2em; height: .32em; overflow: visible; color: var(--color-brand); }
 .wordmark--panel { color: var(--color-brand-deep-ink); }

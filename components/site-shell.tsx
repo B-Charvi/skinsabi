@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { AccountMenu, useAccountLabels } from "@/components/account-menu";
 import { useAuth } from "@/components/auth-provider";
 import { Icon, SegmentedChoice } from "@/components/ui";
+import { useIsAdmin } from "@/lib/use-is-admin";
 
 type Theme = "light" | "dark" | "auto";
 type ReadingFont = "default" | "easy-read";
@@ -46,6 +47,7 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
   const { status, signOut } = useAuth();
   const labels = useAccountLabels();
   const signedIn = status === "signedIn";
+  const isAdmin = useIsAdmin() === "yes";
   // With Supabase not connected ("demo") every page is open, so show the full set of links.
   const fullNav = signedIn || status === "demo";
   const primaryNav = fullNav ? signedInNav : signedOutNav;
@@ -169,7 +171,7 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
         <div className="site-header__actions">
           {!signedIn && <button ref={displayButton} className="display-trigger display-trigger--icon" type="button" aria-label="Display settings" aria-haspopup="dialog" aria-expanded={displayOpen} onClick={() => setDisplayOpen(true)}><Icon name="sliders" size={21}/></button>}
           {status === "loading" && <span className="account-placeholder" aria-hidden="true"/>}
-          {signedIn && <AccountMenu settings={displayControls}/>}
+          {signedIn && <AccountMenu settings={displayControls} isAdmin={isAdmin}/>}
           {(status === "signedOut" || status === "demo") && <>
             <Link className="nav-login" href="/login">Log in</Link>
             <Link className="nav-signup button button--cta" href="/signup">Sign up</Link>
@@ -209,6 +211,7 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
           <nav className="menu-sheet__links" aria-label="Your account">
             <Link href="/profile" onClick={() => menuDialog.current?.close()}>Edit profile<Icon name="arrow-right" size={20}/></Link>
             <Link href="/privacy" onClick={() => menuDialog.current?.close()}>Privacy<Icon name="arrow-right" size={20}/></Link>
+            {isAdmin && <Link href="/admin" onClick={() => menuDialog.current?.close()}>Admin<Icon name="arrow-right" size={20}/></Link>}
           </nav>
           <details className="menu-sheet__settings"><summary>Settings<Icon name="chevron-down" size={18}/></summary><div className="display-panel__body">{displayControls}</div></details>
           <button className="menu-sheet__logout button button--secondary" type="button" onClick={logOutFromSheet}><Icon name="log-out" size={18}/>Log out</button>

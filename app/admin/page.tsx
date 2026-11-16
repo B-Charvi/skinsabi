@@ -1,1 +1,5 @@
-export default function Admin(){return <><h1>Admin</h1><div className="warn">Admin data requires a signed-in administrator and Supabase policies. Configure the owner email in your Supabase project before enabling admin access.</div><div className="grid"><article className="card"><h2>Products needing review</h2><p>Community additions are unverified until ingredients and source are checked.</p></article><article className="card"><h2>Review reports</h2><p>Moderate user-submitted reviews before publication.</p></article><article className="card"><h2>Import logs</h2><p>Automated product imports are not enabled; no external catalog is assumed.</p></article></div></>}
+import { AdminDashboard } from "@/components/admin-dashboard";
+
+export default function Admin() {
+  return <AdminDashboard/>;
+}

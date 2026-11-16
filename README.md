@@ -14,7 +14,7 @@ A mobile-first skincare education web app for Nigeria, built with Next.js App Ro
 
 1. Clone the public `skinsabi` repository.
 2. Create a Supabase project.
-3. Run `supabase/migrations/001_init.sql`, then `supabase/migrations/002_app_flows.sql` in Supabase SQL Editor, in that order.
+3. Run every file in `supabase/migrations/` in Supabase SQL Editor, in number order (`001` to `006`).
 4. In Vercel Project Settings → Environment Variables, add the variables below for Production, Preview, and Development as appropriate.
 5. Import the GitHub repository in Vercel and deploy.
 
@@ -24,11 +24,21 @@ A mobile-first skincare education web app for Nigeria, built with Next.js App Ro
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` = publishable/anon key from Supabase → Project Settings → API.
 - `SUPABASE_SERVICE_ROLE_KEY` = service role key from Supabase → Project Settings → API. Keep this secret; only use it in trusted server-side code. The current UI does not require it.
 
+## Admin page
+
+`/admin` lets the owner approve or remove reviews, verify or delete products people added, and see counts of sign-ups by skin type, concern, budget and state. No names or emails are shown.
+
+Admin access is decided in the database (`006_admin_access.sql`), not by the page:
+
+- An account is an admin only if its user id is in the `admin_users` table. An email address alone grants nothing.
+- The session must also come from Google sign-in. Email and password logins are refused, even on the same account.
+- To add the owner: sign in once with Google, then run `insert into public.admin_users (user_id) select id from auth.users where email = 'owner@example.com';` in the Supabase SQL Editor.
+
 ## Data and safety notes
 
 The seed catalog has 55 named products. Ingredients are blank and products are marked unverified unless a trustworthy INCI source is added by an administrator. Do not treat brand names as ingredient evidence. The directory starts empty; no clinicians are invented. Configure Supabase Auth before collecting personal data. The SQL enables row-level security for user-owned records and creates a private photo bucket. Use signed URLs for photos and enforce the 1 MB upload limit in the application before turning photo uploads on.
 
-Email sign-up and login use Supabase Auth when configured. Profiles are created by the database trigger. Routine selections save to `user_routines`; daily and weekly check-ins and optional compressed photos save privately; verified-test reviews can be submitted after 14 recorded daily check-ins and appear publicly only after moderation. Product price reports, Helpful review votes, live verified dermatologist listings, and admin moderation UI are not implemented yet. Do not expose the service role key in browser code.
+Email sign-up and login use Supabase Auth when configured. Profiles are created by the database trigger. Routine selections save to `user_routines`; daily and weekly check-ins and optional compressed photos save privately; verified-test reviews can be submitted after 14 recorded daily check-ins and appear publicly only after moderation. Product price reports, Helpful review votes, and live verified dermatologist listings are not implemented yet. Do not expose the service role key in browser code.
 
 
 

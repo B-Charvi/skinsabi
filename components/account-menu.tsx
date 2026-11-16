@@ -21,7 +21,7 @@ export function useAccountLabels() {
 type View = "menu" | "settings";
 
 /** The signed-in "Profile" button and its dropdown. `settings` holds the Display controls. */
-export function AccountMenu({ settings }: { settings: ReactNode }) {
+export function AccountMenu({ settings, isAdmin = false }: { settings: ReactNode; isAdmin?: boolean }) {
   const { signOut } = useAuth();
   const { name, initial, email } = useAccountLabels();
   const pathname = usePathname();
@@ -83,6 +83,7 @@ export function AccountMenu({ settings }: { settings: ReactNode }) {
         <Link className="account-menu__item" href="/profile" onClick={() => close()}>Edit profile</Link>
         <button ref={settingsButtonRef} className="account-menu__item" type="button" onClick={() => setView("settings")}>Settings<Icon name="chevron-right" size={18}/></button>
         <Link className="account-menu__item" href="/privacy" onClick={() => close()}>Privacy</Link>
+        {isAdmin && <Link className="account-menu__item" href="/admin" onClick={() => close()}>Admin</Link>}
         <hr className="account-menu__divider"/>
         <button className="account-menu__item" type="button" onClick={logOut}><Icon name="log-out" size={18}/>Log out</button>
       </> : <>

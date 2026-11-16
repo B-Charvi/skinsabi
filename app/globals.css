@@ -349,7 +349,7 @@ button:disabled { cursor: not-allowed; opacity: .65; }
 .home-tools, .how-it-works, .learn-highlights { margin-block: 5rem; }
 .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 1.5rem; margin-bottom: 1.5rem; }
 .section-heading h2 { margin-bottom: 0; }
-.section-heading--center { display: grid; justify-items: center; text-align: center; }
+.section-heading--center { display: grid; grid-template-columns: minmax(0, 1fr); justify-content: normal; align-items: start; justify-items: center; text-align: center; }
 .section-heading--center > p:last-child { margin-bottom: 0; color: var(--color-text-muted); }
 .home-tools__grid, .learn-highlights__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
 .home-feature-card, .learn-card { display: flex; min-height: 15rem; flex-direction: column; align-items: start; }

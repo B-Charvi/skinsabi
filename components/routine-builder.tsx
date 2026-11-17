@@ -28,14 +28,15 @@ function RoutineStep({ step, showProductLink = false, note }: { step: Step; show
 }
 
 export function RoutineBuilder() {
-  const [skin, setSkin] = useState("I don't know");
-  const [concern, setConcern] = useState("Both");
-  const [budget, setBudget] = useState("Under ₦15k");
+  const { profile } = useAuth();
+  // The profile is already loaded when you arrive from another page, so start from it instead of flashing the defaults first.
+  const [skin, setSkin] = useState(() => matchOption(profile?.skin_type, skinOptions) || "I don't know");
+  const [concern, setConcern] = useState(() => matchOption(profile?.main_concern, concernOptions) || "Both");
+  const [budget, setBudget] = useState(() => matchOption(profile?.budget, budgetOptions) || "Under ₦15k");
   const [sandwich, setSandwich] = useState(false);
   const [morning, setMorning] = useState(baseMorning);
   const [evening, setEvening] = useState(baseEvening);
   const [status, setStatus] = useState("Loading saved routine…");
-  const { profile } = useAuth();
   const savedApplied = useRef(false);
   const state = profile?.state ?? "";
   const gentle = skin === "Sensitive" || skin === "I don't know";
@@ -56,7 +57,9 @@ export function RoutineBuilder() {
     let live = true;
     async function load() {
       if (!supabase) { setStatus("Routine saves are available after Supabase is configured."); return; }
-      const { data: { user } } = await supabase.auth.getUser();
+      // getSession reads the signed-in user from this device. getUser would make an extra trip to Supabase first.
+      const { data: { session } } = await supabase.auth.getSession();
+      const user = session?.user;
       if (!user) { setStatus("Log in to save your routine. Your selections stay on this page for now."); return; }
       const { data, error } = await supabase.from("user_routines").select("morning,evening,skin_type,concern,budget,sandwich_mode").eq("user_id", user.id).maybeSingle();
       if (!live) return;

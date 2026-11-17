@@ -205,6 +205,9 @@ small, .small { font-size: .875rem; }
 .skip-link { position: fixed; z-index: 30; top: .5rem; left: .5rem; transform: translateY(-160%); padding: .75rem 1rem; border-radius: var(--radius-control); background: var(--color-surface); color: var(--color-text); box-shadow: var(--shadow-card); }
 .skip-link:focus { transform: translateY(0); }
 .page-container { width: min(100% - 2 * var(--page-gutter), 75rem); margin-inline: auto; }
+/* Keep the page's top margin inside <main> so main does not move when the loading screen is replaced by the page.
+   (This only stops the top margin collapsing; the gap above the footer is unchanged.) */
+#main-content::before { display: table; content: ""; }
 .shell { width: min(100% - 2 * var(--page-gutter), 75rem); margin-inline: auto; padding-block: 1rem; }
 .eyebrow { margin-bottom: .75rem; color: var(--color-cta-ink); font-size: .875rem; line-height: 1.3; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
 .text-link { display: inline-flex; align-items: center; gap: .5rem; min-height: 2.75rem; color: var(--color-brand); font-weight: 600; text-decoration: none; }
@@ -622,7 +625,8 @@ section > p a[href="/signup"]:hover, section > p a[href="/login"]:hover { text-d
 .gate { display: grid; max-width: 34rem; gap: 1rem; margin: 3rem auto; justify-items: center; text-align: center; }
 .gate h1 { margin: 0; font-size: var(--step-h2); }
 .gate p { margin: 0; color: var(--color-text-muted); }
-.gate--loading { min-height: 50vh; align-content: center; }
+/* Tall enough that the footer stays below the fold while the account check runs, so it does not flash and jump when the page appears. */
+.gate--loading { min-height: calc(100svh - 6rem); align-content: center; }
 .gate__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: .75rem; }
 
 .auth-page { display: grid; min-height: 60vh; place-items: center; padding-block: 2rem; }

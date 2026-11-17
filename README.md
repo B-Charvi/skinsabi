@@ -7,7 +7,7 @@ A mobile-first skincare education web app for Nigeria, built with Next.js App Ro
 1. Install Node.js 20 or newer.
 2. Run `npm install`.
 3. Copy `.env.example` to `.env.local` and add your Supabase project URL and anon key (the service role is server-only and must never be exposed as a `NEXT_PUBLIC_` variable).
-4. Run `npm run dev` and open http://localhost:3000.
+4. Run `npm run dev` and open http://localhost:3000. The first visit to each page compiles it, so it feels slower than the real site. For the true speed, run `npm run build` then `npm start`.
 5. Run `npm run build` before deploying.
 
 ## Deploy in five steps

@@ -15,11 +15,14 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
 };
 
+// Open the connection to Supabase while the page is still loading, so the first data request does not wait for DNS + TLS.
+const supabaseOrigin = (() => { try { return process.env.NEXT_PUBLIC_SUPABASE_URL ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).origin : null; } catch { return null; } })();
+
 const themeInit = `(()=>{try{const r=document.documentElement;const t=localStorage.getItem("ss-theme")||"light";const d=t==="auto"?matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light":t;r.dataset.theme=d;r.style.colorScheme=d;const s=Number(localStorage.getItem("ss-size")||16);const valid=[14,16,19,22].includes(s)?s:16;r.style.fontSize=({14:"90%",16:"100%",19:"112.5%",22:"125%"})[valid];r.dataset.size=({14:"small",16:"normal",19:"large",22:"extra-large"})[valid];r.dataset.font=localStorage.getItem("ss-font")==="easy-read"?"easy-read":"default";const m=localStorage.getItem("ss-motion")==="reduced";const c=navigator.connection&&navigator.connection.saveData;r.dataset.motion=m||matchMedia("(prefers-reduced-motion: reduce)").matches||c?"reduced":"auto";r.dataset.motionPreference=m?"reduced":"auto";for(const k of Object.keys(localStorage)){if(/con.trast/i.test(k))localStorage.removeItem(k)}}catch{}})();`;
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return <html lang="en-NG" suppressHydrationWarning className={`${displayFont.variable} ${uiFont.variable} ${easyReadFont.variable}`}>
-    <head><script dangerouslySetInnerHTML={{ __html: themeInit }}/></head>
+    <head>{supabaseOrigin && <link rel="preconnect" href={supabaseOrigin} crossOrigin="anonymous"/>}<script dangerouslySetInnerHTML={{ __html: themeInit }}/></head>
     <body><AuthProvider><SiteShell>{children}</SiteShell></AuthProvider></body>
   </html>;
 }

@@ -468,6 +468,12 @@ section > p a[href="/signup"]:hover, section > p a[href="/login"]:hover { text-d
 .product-group__heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
 .product-group__heading h2 { margin: 0; font-size: var(--step-h2); }
 .product-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+.product-group { display: grid; gap: 1rem; margin-top: 2rem; }
+.product-group__head h2 { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin: 0; font-size: var(--step-h2); }
+.product-group__head h2 svg { color: var(--color-success); }
+.product-group__count { padding: .1rem .6rem; border-radius: 999px; background: var(--color-surface-2); color: var(--color-text-muted); font-family: var(--font-ui), system-ui, sans-serif; font-size: .875rem; font-weight: 600; letter-spacing: 0; font-variation-settings: normal; }
+.product-group__head p { margin: .35rem 0 0; color: var(--color-text-muted); }
+.product-group__more { justify-self: center; }
 .product-card { display: flex; min-width: 0; flex-direction: column; align-items: start; gap: .75rem; }
 .product-card h3 { margin: 0; overflow-wrap: anywhere; }
 .product-card > p { margin: 0; color: var(--color-text-muted); }

@@ -36,9 +36,12 @@ const resultGroups = [
   { label: "Unknown", flag: "Unknown Ingredient", icon: "info" as const, style: "unknown" },
 ];
 
+/** A product counts as "saved" only when its list is official (verified), not just pasted in by someone. */
+const hasOfficialList = (product: Product) => product.verified && Boolean(product.ingredients_list);
+
 function ProductCard({ product, addToTest }: { product: Product; addToTest: (product: Product) => void }) {
   // Only good news is shown on a card. A product without an official list simply shows no status.
-  const verified = product.verified && Boolean(product.ingredients_list);
+  const verified = hasOfficialList(product);
   // Some starter-catalog rows use the placeholder brand "Unverified". Never show that word to a visitor.
   const brand = product.brand === "Unverified" ? "" : product.brand;
 
@@ -54,6 +57,23 @@ function ProductCard({ product, addToTest }: { product: Product; addToTest: (pro
     <Button className="product-card__action" onClick={() => addToTest(product)}>Add to Test &amp; Watch</Button>
     {product.ingredients_list && <details><summary>Show saved ingredients</summary><p>{product.ingredients_list}</p></details>}
   </Card>;
+}
+
+const GROUP_LIMIT = 12;
+
+/** One block of the catalog. Products with an official ingredient list sit apart from those without one, so each block looks the same. */
+function ProductGroup({ id, title, note, saved, products, addToTest }: { id: string; title: string; note: string; saved?: boolean; products: Product[]; addToTest: (product: Product) => void }) {
+  const [showAll, setShowAll] = useState(false);
+  if (products.length === 0) return null;
+  const shown = showAll ? products : products.slice(0, GROUP_LIMIT);
+  return <section className="product-group" aria-labelledby={id}>
+    <div className="product-group__head">
+      <h2 id={id}>{saved && <Icon name="circle-check" size={22}/>}{title}<span className="product-group__count">{products.length} {products.length === 1 ? "product" : "products"}</span></h2>
+      <p>{note}</p>
+    </div>
+    <div className="product-grid">{shown.map(product => <ProductCard key={product.id} product={product} addToTest={addToTest}/>)}</div>
+    {products.length > GROUP_LIMIT && !showAll && <Button variant="secondary" className="product-group__more" onClick={() => setShowAll(true)}>Show all {products.length}</Button>}
+  </section>;
 }
 
 export function ProductChecker() {
@@ -82,7 +102,8 @@ export function ProductChecker() {
     const matchesQuery = `${product.brand} ${product.product_name}`.toLowerCase().includes(query.toLowerCase());
     return matchesQuery && (category === "All" || product.category === category);
   }), [items, query, category]);
-  const found = matching.slice(0, 12);
+  const withList = matching.filter(hasOfficialList);
+  const withoutList = matching.filter(product => !hasOfficialList(product));
   const result = checked ? analyze(text) : [];
 
   async function addToTest(product: Product) {
@@ -112,13 +133,16 @@ export function ProductChecker() {
 
     <div className="products-search-row">
       <Input label="Search the starter catalog" icon="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Type a product name"/>
-      <span className="small" aria-live="polite">{matching.length > 12 ? "Showing the first 12 matches" : `${matching.length} ${matching.length === 1 ? "product" : "products"}`}</span>
+      <span className="small" aria-live="polite">{`${matching.length} ${matching.length === 1 ? "product" : "products"}`}</span>
     </div>
     <div className="category-chips" role="group" aria-label="Filter products by category">
       {categories.map(value => <button key={value} type="button" aria-pressed={category === value} onClick={() => setCategory(value)}>{value}</button>)}
     </div>
     {status !== "Showing starter catalog; connect Supabase to load live products." || process.env.NODE_ENV !== "production" ? <p className="small" role="status">{status}</p> : null}
-    {found.length ? <div className="product-grid">{found.map(product => <ProductCard key={product.id} product={product} addToTest={addToTest}/>)}</div> : <EmptyState title="No product matches that search.">Try another name, or paste the label.</EmptyState>}
+    {matching.length ? <>
+      <ProductGroup id="group-saved" saved title="Official ingredient list saved" note="Tap “Show saved ingredients” on a card to see what is in it." products={withList} addToTest={addToTest}/>
+      <ProductGroup id="group-needed" title="No official ingredient list yet" note="You can still add these to Test & Watch, or paste the label below to check them." products={withoutList} addToTest={addToTest}/>
+    </> : <EmptyState title="No product matches that search.">Try another name, or paste the label.</EmptyState>}
 
     <section className="label-checker" aria-labelledby="label-checker-title">
       <div className="label-checker__intro"><p className="eyebrow">Bring your own label</p><h2 id="label-checker-title">Check ingredients from your label</h2><p>Paste the ingredient list from the pack and we will flag what to watch.</p></div>

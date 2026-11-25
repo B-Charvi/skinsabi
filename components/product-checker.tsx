@@ -91,7 +91,8 @@ export function ProductChecker() {
       const { data, error } = await supabase.from("products").select("id,brand,product_name,category,ingredients_list,verified,treatment_level,source,ingredient_source_url").order("brand").order("product_name");
       if (!live) return;
       if (error) { setStatus(`Could not load products: ${error.message}`); return; }
-      if (data) { setItems(data as Product[]); setStatus("Product catalog loaded."); }
+      // The owner can read spreadsheet imports that are still unverified. The public cannot, and the owner should see the same page they do.
+      if (data) { setItems((data as Product[]).filter(product => !(product.source === "Admin Import" && !product.verified))); setStatus("Product catalog loaded."); }
     }
     void load();
     return () => { live = false; };

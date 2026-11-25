@@ -743,3 +743,19 @@ html[data-motion="auto"] .account-menu__panel { animation: ss-pop .14s ease-out;
 .admin-table { overflow-x: auto; }
 .admin-table table { width: 100%; border-collapse: collapse; font-size: .9375rem; }
 .admin-table th, .admin-table td { padding: .5rem .6rem; text-align: left; border-bottom: 1px solid var(--color-border-soft); }
+
+/* Admin: spreadsheet import */
+.admin-import__steps { display: grid; gap: .4rem; margin: 0; padding-inline-start: 1.25rem; list-style: decimal; color: var(--color-text-muted); }
+.admin-import__bar { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; }
+.admin-import__file { position: relative; cursor: pointer; }
+.admin-import__file input { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; opacity: 0; cursor: pointer; }
+.admin-import__file:focus-within { outline: 3px solid var(--color-focus); outline-offset: 2px; }
+.admin-import__file.is-disabled { opacity: .6; cursor: not-allowed; }
+.admin-import__file.is-disabled input { cursor: not-allowed; }
+.admin-import__problems, .admin-import__notes { padding: .85rem 1rem; border-radius: var(--radius-control); }
+.admin-import__problems { border: 1px solid var(--color-danger); background: var(--color-danger-bg); color: var(--color-text); }
+.admin-import__notes { border: 1px solid var(--color-border-soft); background: var(--color-surface-2); }
+.admin-import__notes summary { cursor: pointer; font-weight: 600; }
+.admin-import__problems h3 { margin: 0 0 .4rem; }
+.admin-import__problems ul, .admin-import__notes ul { display: grid; gap: .5rem; margin: .4rem 0 0; padding-inline-start: 1.1rem; overflow-wrap: anywhere; }
+.admin-import__problems li ul, .admin-import__notes li ul { margin-top: .2rem; gap: .15rem; }

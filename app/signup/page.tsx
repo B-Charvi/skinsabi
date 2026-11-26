@@ -63,7 +63,7 @@ export default function Signup() {
     <AmbientSprites/>
     <div className="card signup-welcome">
       <div className="signup-welcome__copy">
-        <div className="signup-welcome__wordmark"><Wordmark size="panel"/></div>
+        <div className="signup-welcome__wordmark"><Wordmark size="panel" draw/></div>
         <h1 className="signup-welcome__title">Your skin sabi pass.</h1>
         <p>Test any product. Build a routine that fits your budget. Track your skin safely.</p>
         <strong>SkinSabi is education, not medical advice.</strong>

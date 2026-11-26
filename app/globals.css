@@ -298,7 +298,12 @@ button:disabled { cursor: not-allowed; opacity: .65; }
 .site-header__brand, .site-footer__wordmark { display: inline-flex; flex: none; align-items: center; text-decoration: none; }
 .wordmark { position: relative; display: inline-block; width: fit-content; justify-self: start; color: var(--color-brand); font-size: 1.6875rem; line-height: 1; white-space: nowrap; }
 .wordmark__letters { display: inline-block; font-family: var(--font-display), Georgia, serif; font-size: 1em; font-weight: 560; font-variation-settings: "SOFT" 100; letter-spacing: -.02778em; }
-.wordmark__swash { position: absolute; right: 0; bottom: -.2em; width: 2.2em; height: .32em; overflow: visible; color: var(--color-brand); }
+.wordmark__swash { position: absolute; left: 0; bottom: -.2em; width: calc(100% + .08em); height: .32em; overflow: visible; color: inherit; }
+/* Sign up and log in: the line is drawn from the "s" to the "i" once, then the leaf opens. Same rules as the other motion: off in Reduced motion. */
+html[data-motion="auto"] .wordmark--draw .wordmark__line { stroke-dasharray: 1 3; stroke-dashoffset: 1.05; animation: ss-swash-draw 1.1s cubic-bezier(.45, .05, .25, 1) .3s forwards; }
+html[data-motion="auto"] .wordmark--draw .wordmark__leaf { opacity: 0; transform-box: fill-box; transform-origin: 0 100%; animation: ss-swash-leaf .45s ease-out 1.3s forwards; }
+@keyframes ss-swash-draw { to { stroke-dashoffset: 0; } }
+@keyframes ss-swash-leaf { from { opacity: 0; transform: scale(.35) rotate(-25deg); } to { opacity: 1; transform: none; } }
 .wordmark--panel { color: var(--color-brand-deep-ink); }
 .site-nav { display: flex; align-items: center; justify-content: center; gap: clamp(.5rem, 1.6vw, 1.25rem); }
 .site-nav a, .profile-link { display: inline-flex; min-height: 2.75rem; align-items: center; padding: .45rem .25rem; color: var(--color-text); font-size: .9375rem; font-weight: 500; text-decoration: none; }
@@ -759,3 +764,13 @@ html[data-motion="auto"] .account-menu__panel { animation: ss-pop .14s ease-out;
 .admin-import__problems h3 { margin: 0 0 .4rem; }
 .admin-import__problems ul, .admin-import__notes ul { display: grid; gap: .5rem; margin: .4rem 0 0; padding-inline-start: 1.1rem; overflow-wrap: anywhere; }
 .admin-import__problems li ul, .admin-import__notes li ul { margin-top: .2rem; gap: .15rem; }
+
+/* Test & Watch: photo picker */
+.photo-pick { display: grid; gap: .6rem; margin: 0; padding: 0; border: 0; }
+.photo-pick legend { padding: 0; font-weight: 600; }
+.photo-pick__buttons { display: flex; flex-wrap: wrap; gap: .6rem; }
+.photo-pick__btn { position: relative; cursor: pointer; }
+.photo-pick__btn input { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; opacity: 0; cursor: pointer; }
+.photo-pick__btn:focus-within { outline: 3px solid var(--color-focus); outline-offset: 2px; }
+.photo-pick__preview { display: flex; align-items: center; gap: .85rem; }
+.photo-pick__preview img { inline-size: 6rem; block-size: 6rem; border-radius: var(--radius-control); object-fit: cover; }

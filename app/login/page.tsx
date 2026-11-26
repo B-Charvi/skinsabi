@@ -45,7 +45,7 @@ export default function Login() {
   return <div className="auth-page ambient-host">
     <AmbientSprites/>
     <section className="auth-card card stack" aria-labelledby="login-title">
-      <Wordmark/>
+      <Wordmark draw/>
       <div>
         <h1 id="login-title">Log in</h1>
         <p className="auth-card__lede">Welcome back. Pick up where you left off.</p>

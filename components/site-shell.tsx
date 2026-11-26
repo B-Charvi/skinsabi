@@ -32,12 +32,16 @@ function applyMotionPreference(motion: MotionSetting) {
   document.documentElement.dataset.motionPreference = motion;
 }
 
-export function Wordmark({ size = "nav" }: { size?: "nav" | "footer" | "panel" }) {
-  return <span className={`wordmark wordmark--${size}`} role="img" aria-label="SkinSabi">
+/**
+ * The swash runs under the whole word, from the "s" to the final "i", and ends in a leaf.
+ * With `draw` (sign up and log in) the line is drawn from the "s" to the "i" once, then the leaf opens.
+ */
+export function Wordmark({ size = "nav", draw = false }: { size?: "nav" | "footer" | "panel"; draw?: boolean }) {
+  return <span className={`wordmark wordmark--${size}${draw ? " wordmark--draw" : ""}`} role="img" aria-label="SkinSabi">
     <span className="wordmark__letters" aria-hidden="true">skinsabi</span>
-    <svg className="wordmark__swash" viewBox="0 0 175 26" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-      <path d="M3 15C32 5 58 22 88 11S138 6 160 13" fill="none" stroke="currentColor" strokeWidth="3.6" strokeLinecap="round"/>
-      <path d="M158 14c2-8 9-12 17-11-1 8-8 13-17 11Z" fill="var(--color-leaf)"/>
+    <svg className="wordmark__swash" viewBox="0 0 272 26" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+      <path className="wordmark__line" pathLength={1} d="M4 15C50 5 92 22 140 11S220 6 254 13" fill="none" stroke="currentColor" strokeWidth="3.6" strokeLinecap="round"/>
+      <path className="wordmark__leaf" d="M252 14c2-8 9-12 17-11-1 8-8 13-17 11Z" fill="var(--color-leaf)"/>
     </svg>
   </span>;
 }
